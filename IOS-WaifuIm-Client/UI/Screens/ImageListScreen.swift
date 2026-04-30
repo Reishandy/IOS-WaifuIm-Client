@@ -26,6 +26,7 @@ struct ImageListScreen: View {
 	]
 	
 	@State private var shouldHideToolbars: Bool = false
+	@State private var isFilterSheetPresented: Bool = false
 	
 	var body: some View {
 		GeometryReader { geometry in
@@ -136,11 +137,18 @@ struct ImageListScreen: View {
 			ToolbarSpacer(placement: .bottomBar)
 			
 			ToolbarItem(placement: .bottomBar) {
-				// TODO: Filter sheet
 				Image(systemName: "line.3.horizontal.decrease")
+					.onTapGesture {
+						isFilterSheetPresented = true
+					}
+					.matchedTransitionSource(id: "filterSheetSource", in: imageListScreenNameSpace)
 			}
 		}
 		.toolbarVisibility(shouldHideToolbars ? .hidden : .visible, for: .navigationBar, .bottomBar)
+		.sheet(isPresented: $isFilterSheetPresented) {
+			FilterSheetView()
+				.navigationTransition(.zoom(sourceID: "filterSheetSource", in: imageListScreenNameSpace))
+		}
 	}
 }
 
