@@ -22,16 +22,37 @@ struct ImageItemView: View {
 			} else {
 				Color.gray.opacity(0.6)
 					.overlay {
-						ProgressView()
+						if imageLoaderManager.isError {
+							VStack(spacing: 10) {
+								Image(systemName: "photo.trianglebadge.exclamationmark.fill")
+									.font(.largeTitle)
+									.foregroundStyle(.black.opacity(0.5))
+								
+								Text("Failed to load image")
+									.foregroundStyle(.black.opacity(0.5))
+							}
+						}
+						else {
+							ProgressView()
+						}
 					}
-					.aspectRatio(contentMode: .fit)
+					.aspectRatio(contentMode: .fill)
 			}
 		}
 		.task(id: imageUrl) {
-			imageLoaderManager.load(from: imageUrl)
-			if let image = imageLoaderManager.image {
-				onImageLoaded?(image)
+			populate()
+		}
+		.onChange(of: imageLoaderManager.isError) {
+			if imageLoaderManager.isError {
+				populate()
 			}
+		}
+	}
+	
+	private func populate() {
+		imageLoaderManager.load(from: imageUrl)
+		if let image = imageLoaderManager.image {
+			onImageLoaded?(image)
 		}
 	}
 }

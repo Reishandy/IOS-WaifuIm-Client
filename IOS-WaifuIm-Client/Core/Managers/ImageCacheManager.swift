@@ -14,6 +14,7 @@ class ImageCache {
 	
 	private init() {
 		self.cache.countLimit = 100
+		self.cache.totalCostLimit = 1024 * 1024 * 1000 // ~1 GB
 	}
 	
 	func set(_ image: UIImage, forKey key: String) {

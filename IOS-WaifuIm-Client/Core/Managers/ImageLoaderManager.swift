@@ -10,7 +10,8 @@ import SwiftUI
 @Observable
 class ImageLoaderManager {
 	var image: UIImage? = nil
-	var isLoading = false
+	var isLoading: Bool = false
+	var isError: Bool = false
 	
 	private var downloadTask: Task<Void, Never>? = nil
 	
@@ -35,12 +36,13 @@ class ImageLoaderManager {
 					
 					await MainActor.run {
 						self.image = downloadedImage
+						self.isError = false
 						self.isLoading = false
 					}
 				}
 			} catch {
 				await MainActor.run {
-					self.image = UIImage(systemName: "photo.trianglebadge.exclamationmark.fill")
+					self.isError = true
 					self.isLoading = false
 				}
 			}
