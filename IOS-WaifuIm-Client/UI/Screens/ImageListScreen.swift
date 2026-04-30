@@ -120,6 +120,7 @@ struct ImageListScreen: View {
 					destination: TagsScreen()
 				) {
 					Image(systemName: "tag.fill")
+						.padding(.trailing, -20)
 				}
 			}
 			
@@ -128,6 +129,7 @@ struct ImageListScreen: View {
 					destination: ArtistScreen()
 				) {
 					Image(systemName: "person.3.fill")
+						.padding(.trailing, 4)
 				}
 			}
 			
