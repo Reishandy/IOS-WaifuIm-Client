@@ -35,15 +35,18 @@ struct ImageListScreen: View {
 			let screenWidth = geometry.size.width
 			
 			if appManager.fetchedImageResponses.isEmpty {
-				if appManager.isLoading {
-					ProgressView()
-				} else {
-					EmptyStateView(
-						iconName: "photo.badge.magnifyingglass.fill",
-						title: "No Images Here",
-						description: "Either it is empty, or you should check the filter (escpecially with the content rating)."
-					)
+				VStack {
+					if appManager.isLoading {
+						ProgressView()
+					} else {
+						EmptyStateView(
+							iconName: "photo.badge.magnifyingglass.fill",
+							title: "No Images Here",
+							description: "Either it is empty, or you should check the filter (escpecially with the content rating)."
+						)
+					}
 				}
+				.frame(maxWidth: .infinity, maxHeight: .infinity)
 			} else {
 				ScrollView {
 					LazyVStack {
