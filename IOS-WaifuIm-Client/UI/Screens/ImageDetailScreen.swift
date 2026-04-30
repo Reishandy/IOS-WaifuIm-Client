@@ -152,6 +152,7 @@ struct ImageDetailScreen: View {
 					.matchedTransitionSource(id: "infoSheetSource", in: imageDetailScreenNameSpace)
 			}
 		}
+		.statusBarHidden(true)
 		.toolbarVisibility(shouldHideToolbars ? .hidden : .visible, for: .navigationBar, .bottomBar)
 		.sheet(isPresented: $isInfoSheetPresented) {
 			// TODO: Replace placeholders

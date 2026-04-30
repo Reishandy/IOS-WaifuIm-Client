@@ -14,11 +14,12 @@ struct ImageItemView: View {
 	@State private var imageLoaderManager = ImageLoaderManager()
 	
 	var body: some View {
-		Group {
+		ZStack {
 			if let image = imageLoaderManager.image {
 				Image(uiImage: image)
 					.resizable()
 					.aspectRatio(contentMode: .fit)
+					.transition(.opacity.combined(with: .scale(scale: 0.95)))
 			} else {
 				Color.gray.opacity(0.6)
 					.overlay {
@@ -37,8 +38,10 @@ struct ImageItemView: View {
 						}
 					}
 					.aspectRatio(contentMode: .fill)
+					.transition(.opacity)
 			}
 		}
+		.animation(.easeIn(duration: 0.3), value: imageLoaderManager.image)
 		.task(id: imageUrl) {
 			populate()
 		}
@@ -51,6 +54,7 @@ struct ImageItemView: View {
 	
 	private func populate() {
 		imageLoaderManager.load(from: imageUrl)
+		
 		if let image = imageLoaderManager.image {
 			onImageLoaded?(image)
 		}

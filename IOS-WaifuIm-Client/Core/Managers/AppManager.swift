@@ -32,6 +32,7 @@ class AppManager {
 	)
 	var error: APIError? = nil
 	var showError: Bool = false
+	var hasMoreImage: Bool = false
 	
 	func fetchImages() async {
 		guard !isLoading else { return }
@@ -40,6 +41,8 @@ class AppManager {
 		
 		do {
 			let response = try await APIService.shared.fetchImages(filter: self.filterState)
+			
+			self.hasMoreImage = response.hasNextPage
 			
 			for item in response.items {
 				// TODO: Possibly trigger the UIImage fetch here?

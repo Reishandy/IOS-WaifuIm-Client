@@ -18,10 +18,22 @@ struct ImageListScreen: View {
 	@State private var isFetchingCooldown: Bool = false
 	@State private var scrollPosition: ScrollPosition = ScrollPosition()
 	
+	private var bottomText: String {
+		if appManager.filterState.orderBy == .random {
+			"Refresh to get new random images"
+		} else if !appManager.hasMoreImage {
+			"That is it, no more images"
+		} else {
+			"Pull to load more images"
+		}
+	}
+	
 	var body: some View {
 		@Bindable var appManager = appManager
 		
-		VStack {
+		GeometryReader { geometry in
+			let screenWidth = geometry.size.width
+			
 			if appManager.fetchedImageResponses.isEmpty {
 				if appManager.isLoading {
 					ProgressView()
@@ -36,22 +48,24 @@ struct ImageListScreen: View {
 				ScrollView {
 					LazyVStack {
 						ForEach(appManager.fetchedImageResponses) { item in
+							let displayHeight = (screenWidth / CGFloat(item.width)) * CGFloat(item.height)
+							
 							NavigationLink(
 								destination: ImageDetailScreen(imageResponse: item)
 							) {
 								ImageItemView(imageUrl: item.url)
+									.frame(height: displayHeight)
 									.clipShape(RoundedRectangle(cornerRadius: 10))
 									.padding(.bottom, -6)
 									.padding(.horizontal, 2)
 							}
 						}
 						
-						// TODO: Check for no more item
 						if appManager.isLoading {
 							ProgressView()
 								.padding(.top, 12)
 						} else {
-							Text(appManager.filterState.orderBy == .random ? "Refresh to get new random images" : "Pull to load more images")
+							Text(bottomText)
 								.opacity(0.4)
 								.font(.subheadline)
 								.padding(.top, 6)
@@ -158,6 +172,7 @@ struct ImageListScreen: View {
 				isInitialLoadDone = true
 			}
 		}
+		.statusBarHidden(true)
 		.toolbarVisibility(shouldHideToolbars ? .hidden : .visible, for: .navigationBar, .bottomBar)
 		.sheet(isPresented: $isFilterSheetPresented) {
 			FilterSheetView()
