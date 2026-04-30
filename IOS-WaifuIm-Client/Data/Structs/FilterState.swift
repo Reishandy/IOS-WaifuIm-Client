@@ -9,12 +9,13 @@ struct FilterState {
 	var isNsfw: BooleanFilterType
 	var includedTags: [String]
 	var excludedTags: [String]
-	var IncludedArtist: [String]
-	var excludedArtiest: [String]
+	var IncludedArtists: [String]
+	var excludedArtiests: [String]
 	var IncludedIds: [String]
 	var excludedIds: [String]
 	var isAnimated: BooleanFilterType
-	var OrderBy: OrderByFilterType
+	var orderBy: OrderByFilterType
+	var orientation: OrientationFilterType
 	var page: Int
 	var pageSize: Int
 	var width: SizeFilterType?

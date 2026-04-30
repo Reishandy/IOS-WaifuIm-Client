@@ -8,12 +8,12 @@
 import Foundation
 
 actor APIService {
-	private let apiUrl: String = "https://api.waifu.im"
+	private let apiUrl: String = "https://api.waifu.im/"
 	
-	func fetchImages() async throws -> ResponseImageFetch {
+	func fetchImages(filter: FilterState) async throws -> ResponseImageFetch {
 		// TODO: Build the filter
 		
-		guard let url = URL(string: "\(self.apiUrl)/images") else {
+		guard let url = buildUrl(path: .images, filter: filter) else {
 			throw APIError.invalidURL
 		}
 		
@@ -45,5 +45,61 @@ actor APIService {
 			print("> Parsing error: \(error)")
 			throw APIError.decodingError
 		}
+	}
+	
+	private func buildUrl(path: APIPath, filter: FilterState? = nil) -> URL? {
+		var urlString = self.apiUrl + path.rawValue
+		
+		if let filter {
+			urlString += "?IsNsfw=\(filter.isNsfw.rawValue)&"
+			
+			for includedTag in filter.includedTags {
+				urlString += "IncludedTags=\(includedTag)&"
+			}
+			
+			for excludedTag in filter.excludedTags {
+				urlString += "ExcludedTags=\(excludedTag)&"
+			}
+			
+			for IncludedArtist in filter.IncludedArtists {
+				urlString += "IncludedArtists=\(IncludedArtist)&"
+			}
+			
+			for excludedArtiest in filter.excludedArtiests {
+				urlString += "ExcludedArtists=\(excludedArtiest)&"
+			}
+			
+			for IncludedId in filter.IncludedIds {
+				urlString += "IncludedIds=\(IncludedId)&"
+			}
+			
+			for excludedId in filter.excludedIds {
+				urlString += "ExcludedIds\(excludedId)&"
+			}
+			
+			urlString += "IsAnimated=\(filter.isAnimated.rawValue)&"
+			
+			urlString += "OrderBy=\(filter.orderBy.rawValue)&"
+			
+			urlString += "Orientation=\(filter.orientation.rawValue)&"
+			
+			urlString += "Page=\(filter.page)&"
+			
+			urlString += "PageSize=\(filter.pageSize)&"
+			
+			if let width = filter.width {
+				urlString += "Width=\(width.stringValue)&"
+			}
+			
+			if let height = filter.height {
+				urlString += "Height=\(height.stringValue)&"
+			}
+			
+			if let byteSize = filter.byteSize {
+				urlString += "ByteSize=\(byteSize)&"
+			}
+		}
+		
+		return URL(string: urlString)
 	}
 }

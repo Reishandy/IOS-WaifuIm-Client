@@ -19,12 +19,13 @@ class AppManager {
 		isNsfw: BooleanFilterType.isFalse,
 		includedTags: [],
 		excludedTags: [],
-		IncludedArtist: [],
-		excludedArtiest: [],
+		IncludedArtists: [],
+		excludedArtiests: [],
 		IncludedIds: [],
 		excludedIds: [],
 		isAnimated: .all,
-		OrderBy: .random,
+		orderBy: .random,
+		orientation: .all,
 		page: 1,
 		pageSize: 10,
 		width: nil,
@@ -35,10 +36,12 @@ class AppManager {
 	var showError: Bool = false
 	
 	func fetchImages() async {
+		guard !isLoading else { return }
+		
 		self.isLoading = true
 		
 		do {
-			let response = try await self.apiService.fetchImages()
+			let response = try await self.apiService.fetchImages(filter: self.filterState)
 			
 			for item in response.items {
 				// TODO: Possibly trigger the UIImage fetch here?

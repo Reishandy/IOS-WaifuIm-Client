@@ -14,6 +14,7 @@ struct ImageListScreen: View {
 	
 	@State private var shouldHideToolbars: Bool = false
 	@State private var isFilterSheetPresented: Bool = false
+	@State private var isFetchingCooldown: Bool = false
 	
 	var body: some View {
 		@Bindable var appManager = appManager
@@ -36,31 +37,37 @@ struct ImageListScreen: View {
 				.frame(maxWidth: .infinity, maxHeight: .infinity)
 			} else {
 				ScrollView {
-					ForEach(appManager.fetchedImageResponses) { item in
-						let itemHeight = CGFloat(Double(item.height))
-						let itemWidth = CGFloat(Double(item.width))
-						let displayHeight = (screenWidth / itemWidth) * itemHeight
-						
-						NavigationLink(
-							destination: ImageDetailScreen()
-								.navigationTransition(.zoom(sourceID: item.width, in: imageListScreenNameSpace))
-						) {
-							ImageItemView(image: nil)
-								.frame(height: displayHeight)
-								.clipShape(RoundedRectangle(cornerRadius: 10))
-								.padding(.bottom, -6)
-								.padding(.horizontal, 2)
-								.matchedTransitionSource(id: item.width, in: imageListScreenNameSpace)
+					LazyVStack {
+						ForEach(appManager.fetchedImageResponses) { item in
+							let itemHeight = CGFloat(Double(item.height))
+							let itemWidth = CGFloat(Double(item.width))
+							let displayHeight = (screenWidth / itemWidth) * itemHeight
+							
+							NavigationLink(
+								destination: ImageDetailScreen()
+									.navigationTransition(.zoom(sourceID: item.width, in: imageListScreenNameSpace))
+							) {
+								ImageItemView(image: nil)
+									.frame(height: displayHeight)
+									.clipShape(RoundedRectangle(cornerRadius: 10))
+									.padding(.bottom, -6)
+									.padding(.horizontal, 2)
+									.matchedTransitionSource(id: item.width, in: imageListScreenNameSpace)
+							}
 						}
 						
+						// TODO: Check for no more item
+						// TODO: and also when it is random filter
+						if appManager.isLoading {
+							ProgressView()
+								.padding(.top, 12)
+						} else {
+							Text(appManager.filterState.orderBy == .random ? "Refresh to get new random images" : "Pull to load more images")
+								.opacity(0.4)
+								.font(.subheadline)
+								.padding(.top, 6)
+						}
 					}
-					
-					// TODO: Check for no more item and fetching status
-					// TODO: and also when it is random filter
-					Text("Pull to load more images")
-						.opacity(0.4)
-						.font(.subheadline)
-						.padding(.top, 6)
 				}
 				.onTapGesture(count: 2) {
 					withAnimation() {
@@ -90,7 +97,7 @@ struct ImageListScreen: View {
 						}
 					}
 					
-					if newValue.isAtBottom && !oldValue.isAtBottom {
+					if newValue.isAtBottom && !oldValue.isAtBottom && appManager.filterState.orderBy != .random {
 						Task {
 							await populate()
 						}
@@ -177,15 +184,26 @@ struct ImageListScreen: View {
 		} message: { error in
 			Text(error.localizedDescription)
 		}
+		.animation(.easeInOut, value: appManager.fetchedImageResponses)
 	}
 	
 	private func populate(isFresh: Bool = false) async {
-		// TODO: Set pagination
+		guard !isFetchingCooldown else { return }
+		
+		isFetchingCooldown = true
+		Task {
+			DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+				isFetchingCooldown = false
+			}
+		}
 		
 		if isFresh {
-			appManager.fetchedImageResponses = []
+			withAnimation(.easeInOut) {
+				appManager.fetchedImageResponses = []
+				appManager.filterState.page = 1
+			}
 		} else {
-			
+			appManager.filterState.page += 1
 		}
 		
 		await appManager.fetchImages()

@@ -5,7 +5,7 @@
 //  Created by Muhammad Akbar Reishandy on 30/04/26.
 //
 
-nonisolated struct ResponseTag: Decodable, Identifiable {
+nonisolated struct ResponseTag: Decodable, Identifiable, Equatable {
 	let id: Int
 	let name: String
 	let slug: String
