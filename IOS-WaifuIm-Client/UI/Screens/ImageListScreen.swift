@@ -12,52 +12,41 @@ struct ImageListScreen: View {
 	
 	@Environment(AppManager.self) private var appManager
 	
+	@State private var isInitialLoadDone: Bool = false
 	@State private var shouldHideToolbars: Bool = false
 	@State private var isFilterSheetPresented: Bool = false
 	@State private var isFetchingCooldown: Bool = false
+	@State private var scrollPosition: ScrollPosition = ScrollPosition()
 	
 	var body: some View {
 		@Bindable var appManager = appManager
 		
-		GeometryReader { geometry in
-			let screenWidth = geometry.size.width
-			
+		VStack {
 			if appManager.fetchedImageResponses.isEmpty {
-				VStack {
-					if appManager.isLoading {
-						ProgressView()
-					} else {
-						EmptyStateView(
-							iconName: "photo.badge.magnifyingglass.fill",
-							title: "No Images Here",
-							description: "Either it is empty, or you should check the filter (escpecially with the content rating)."
-						)
-					}
+				if appManager.isLoading {
+					ProgressView()
+				} else {
+					EmptyStateView(
+						iconName: "photo.badge.magnifyingglass.fill",
+						title: "No Images Here",
+						description: "Either it is empty, or you should check the filter (escpecially with the content rating)."
+					)
 				}
-				.frame(maxWidth: .infinity, maxHeight: .infinity)
 			} else {
 				ScrollView {
 					LazyVStack {
 						ForEach(appManager.fetchedImageResponses) { item in
-							let itemHeight = CGFloat(Double(item.height))
-							let itemWidth = CGFloat(Double(item.width))
-							let displayHeight = (screenWidth / itemWidth) * itemHeight
-							
 							NavigationLink(
-								destination: ImageDetailScreen()
-									.navigationTransition(.zoom(sourceID: item.width, in: imageListScreenNameSpace))
+								destination: ImageDetailScreen(imageResponse: item)
 							) {
-								ImageItemView(image: nil)
-									.frame(height: displayHeight)
+								ImageItemView(imageUrl: item.url)
 									.clipShape(RoundedRectangle(cornerRadius: 10))
 									.padding(.bottom, -6)
 									.padding(.horizontal, 2)
-									.matchedTransitionSource(id: item.width, in: imageListScreenNameSpace)
 							}
 						}
 						
 						// TODO: Check for no more item
-						// TODO: and also when it is random filter
 						if appManager.isLoading {
 							ProgressView()
 								.padding(.top, 12)
@@ -69,6 +58,7 @@ struct ImageListScreen: View {
 						}
 					}
 				}
+				.scrollPosition($scrollPosition)
 				.onTapGesture(count: 2) {
 					withAnimation() {
 						shouldHideToolbars.toggle()
@@ -163,7 +153,10 @@ struct ImageListScreen: View {
 			}
 		}
 		.task {
-			await populate(isFresh: true)
+			if !isInitialLoadDone {
+				await populate(isFresh: true)
+				isInitialLoadDone = true
+			}
 		}
 		.toolbarVisibility(shouldHideToolbars ? .hidden : .visible, for: .navigationBar, .bottomBar)
 		.sheet(isPresented: $isFilterSheetPresented) {
@@ -198,7 +191,8 @@ struct ImageListScreen: View {
 		}
 		
 		if isFresh {
-			withAnimation(.easeInOut) {
+			withAnimation() {
+				scrollPosition.scrollTo(edge: .top)
 				appManager.fetchedImageResponses = []
 				appManager.filterState.page = 1
 			}

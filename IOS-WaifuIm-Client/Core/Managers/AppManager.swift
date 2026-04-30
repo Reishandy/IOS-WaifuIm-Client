@@ -10,8 +10,6 @@ import SwiftUI
 @MainActor
 @Observable
 class AppManager {
-	private var apiService: APIService = APIService()
-	
 	var fetchedImageResponses: [ResponseImage] = []
 	var fetchedImage: [String: UIImage] = [:]
 	var isLoading: Bool =  false
@@ -41,7 +39,7 @@ class AppManager {
 		self.isLoading = true
 		
 		do {
-			let response = try await self.apiService.fetchImages(filter: self.filterState)
+			let response = try await APIService.shared.fetchImages(filter: self.filterState)
 			
 			for item in response.items {
 				// TODO: Possibly trigger the UIImage fetch here?

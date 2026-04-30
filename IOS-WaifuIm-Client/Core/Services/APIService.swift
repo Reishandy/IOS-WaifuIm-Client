@@ -8,17 +8,21 @@
 import Foundation
 
 actor APIService {
+	static let shared: APIService = APIService()
+	
 	private let apiUrl: String = "https://api.waifu.im/"
 	
 	func fetchImages(filter: FilterState) async throws -> ResponseImageFetch {
-		// TODO: Build the filter
-		
 		guard let url = buildUrl(path: .images, filter: filter) else {
 			throw APIError.invalidURL
 		}
 		
 		do {
-			let (data, response) = try await URLSession.shared.data(from: url)
+			var request = URLRequest(url: url)
+			
+			request.setValue("v7", forHTTPHeaderField: "Accept-Version")
+			
+			let (data, response) = try await URLSession.shared.data(for: request)
 			
 			guard let httpResponse = response as? HTTPURLResponse else {
 				throw APIError.serverError

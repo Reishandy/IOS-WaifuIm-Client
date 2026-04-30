@@ -10,7 +10,7 @@ import SwiftUI
 struct ImageDetailScreen: View {
 	@Namespace private var imageDetailScreenNameSpace
 	
-	var image: UIImage? = nil
+	var imageResponse: ResponseImage
 	
 	@State private var shouldHideToolbars: Bool = false
 	@State private var isInfoSheetPresented: Bool = false
@@ -21,12 +21,16 @@ struct ImageDetailScreen: View {
 	@State private var totalZoom: CGFloat = 1.0
 	@State private var currentOffset: CGSize = .zero
 	@State private var totalOffset: CGSize = .zero
+	@State private var loadedImage: UIImage? = nil
 	
 	var body: some View {
 		GeometryReader { geometry in
 			let size = geometry.size
 			
-			ImageItemView(image: image)
+			VStack {
+				ImageItemView(imageUrl: imageResponse.url) { loadedImage in
+					self.loadedImage = loadedImage
+				}
 				.scaleEffect(totalZoom + currentZoom)
 				.offset(x: totalOffset.width + currentOffset.width,
 						y: totalOffset.height + currentOffset.height)
@@ -76,7 +80,7 @@ struct ImageDetailScreen: View {
 							totalOffset.width += currentOffset.width
 							currentOffset = .zero
 							
-							let actualImageSize = image?.size ?? CGSize(width: size.width, height: size.height)
+							let actualImageSize = loadedImage?.size ?? CGSize(width: size.width, height: size.height)
 							let currentScale = totalZoom + currentZoom
 							var renderedWidth = size.width
 							var renderedHeight = size.height
@@ -102,16 +106,21 @@ struct ImageDetailScreen: View {
 							}
 						}
 				)
+			}
+			.frame(maxWidth: .infinity, maxHeight: .infinity)
 		}
 		.frame(maxWidth: .infinity, maxHeight: .infinity)
-		.ignoresSafeArea() // TODO: Check this with actual image later
+		.ignoresSafeArea()
 		.toolbar {
 			ToolbarItem(placement: .principal) {
 				Text("Image #1234")
 					.opacity(0.5)
+					.padding(.horizontal, 16)
+					.padding(.vertical, 12)
+					.glassEffect(in: RoundedRectangle(cornerRadius: 20))
 			}
 			
-			if image != nil {
+			if loadedImage != nil {
 				ToolbarItem(placement: .topBarTrailing) {
 					// TODO: Share
 					Image(systemName: "square.and.arrow.up")
@@ -160,6 +169,6 @@ struct ImageDetailScreen: View {
 
 #Preview {
 	NavigationStack {
-		ImageDetailScreen()
+		ImageDetailScreen(imageResponse: ResponseImage(id: 1, perceptualHash: "", dominantColor: "", source: "", artists: [], uploaderId: 0, uploadedAt: "", isNsfw: false, isAnimated: false, width: 792, height: 729, byteSize: 48956, url: "https://github.com/Reishandy/Reishandy/blob/85b5bd0ef00735d277eaf41db3f28a5eb6e2c63a/repo/michiru_profile.webp?raw=true", tags: [], reviewStatus: "", favorites: 1, likedAt: .now, addedToAlbumAt: .now, albums: []))
 	}
 }
