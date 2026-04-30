@@ -5,12 +5,12 @@
 //  Created by Muhammad Akbar Reishandy on 30/04/26.
 //
 
-struct ResponseTag {
-	let id: String
+nonisolated struct ResponseTag: Decodable, Identifiable {
+	let id: Int
 	let name: String
 	let slug: String
 	let description: String
 	let reviewStatus: String?
-	let creatorId: String?
-	let imageCount: String
+	let creatorId: Int?
+	let imageCount: Int
 }

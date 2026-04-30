@@ -5,7 +5,7 @@
 //  Created by Muhammad Akbar Reishandy on 30/04/26.
 //
 
-struct ResponseImageFetch {
+nonisolated struct ResponseImageFetch: Decodable {
 	let items: [ResponseImage]
 	let pageNumber: Int
 	let totalPages: Int

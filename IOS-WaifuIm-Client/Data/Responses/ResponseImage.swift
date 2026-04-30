@@ -5,24 +5,26 @@
 //  Created by Muhammad Akbar Reishandy on 30/04/26.
 //
 
-struct ResponseImage {
-	let id: String
+import Foundation
+
+nonisolated struct ResponseImage: Decodable, Identifiable {
+	let id: Int
 	let perceptualHash: String
 	let dominantColor: String
 	let source: String?
 	let artists: [ResponseArtist]
-	let uploaderId: String?
+	let uploaderId: Int?
 	let uploadedAt: String
-	let isNsfw: String
-	let isAnimated: String
-	let width: String
-	let height: String
-	let byteSize: String
+	let isNsfw: Bool
+	let isAnimated: Bool
+	let width: Int
+	let height: Int
+	let byteSize: Int
 	let url: String
 	let tags: [ResponseTag]
 	let reviewStatus: String?
-	let favorites: String
-	let likedAt: String?
-	let addedToAlbumAt: String?
+	let favorites: Int
+	let likedAt: Date?
+	let addedToAlbumAt: Date?
 	let albums: [ResponseAlbum]
 }

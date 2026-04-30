@@ -5,11 +5,11 @@
 //  Created by Muhammad Akbar Reishandy on 30/04/26.
 //
 
-struct ResponseAlbum {
-	let id: String
+nonisolated struct ResponseAlbum: Decodable, Identifiable {
+	let id: Int
 	let name: String
 	let description: String
 	let isDefault: Bool
-	let userId: String
-	let imageCount: String
+	let userId: Int
+	let imageCount: Int
 }

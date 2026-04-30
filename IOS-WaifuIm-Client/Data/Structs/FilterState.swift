@@ -17,7 +17,7 @@ struct FilterState {
 	var OrderBy: OrderByFilterType
 	var page: Int
 	var pageSize: Int
-	var width: SizeFilterType
-	var height: SizeFilterType
-	var byteSize: Int
+	var width: SizeFilterType?
+	var height: SizeFilterType?
+	var byteSize: Int?
 }

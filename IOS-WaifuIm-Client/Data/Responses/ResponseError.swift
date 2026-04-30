@@ -5,9 +5,10 @@
 //  Created by Muhammad Akbar Reishandy on 30/04/26.
 //
 
-struct ResponseError {
+nonisolated struct ResponseError: Decodable, Equatable {
 	let errors: [String: String]?
 	let type: String?
+	let title: String?
 	let status: String?
 	let detail: String?
 	let instance: String?
