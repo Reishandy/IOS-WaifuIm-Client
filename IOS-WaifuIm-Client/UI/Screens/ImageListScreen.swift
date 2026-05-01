@@ -12,21 +12,10 @@ struct ImageListScreen: View {
 	
 	@Environment(AppManager.self) private var appManager
 	
-	@State private var isInitialLoadDone: Bool = false
 	@State private var shouldHideToolbars: Bool = false
 	@State private var isFilterSheetPresented: Bool = false
 	@State private var isFetchingCooldown: Bool = false
 	@State private var scrollPosition: ScrollPosition = ScrollPosition()
-	
-	private var bottomText: String {
-		if appManager.filterState.orderBy == .random {
-			"Refresh to get new random images"
-		} else if !appManager.hasMoreImage {
-			"That is it, no more images"
-		} else {
-			"Pull to load more images"
-		}
-	}
 	
 	var body: some View {
 		@Bindable var appManager = appManager
@@ -34,8 +23,8 @@ struct ImageListScreen: View {
 		GeometryReader { geometry in
 			let screenWidth = geometry.size.width
 			
-			if appManager.fetchedImageResponses.isEmpty {
-				VStack {
+			VStack {
+				if appManager.fetchedImageResponses.isEmpty {
 					if appManager.isLoading {
 						ProgressView()
 					} else {
@@ -45,75 +34,22 @@ struct ImageListScreen: View {
 							description: "Either it is empty, or you should check the filter (escpecially with the content rating)."
 						)
 					}
-				}
-				.frame(maxWidth: .infinity, maxHeight: .infinity)
-			} else {
-				ScrollView {
-					LazyVStack {
-						ForEach(appManager.fetchedImageResponses) { item in
-							let displayHeight = (screenWidth / CGFloat(item.width)) * CGFloat(item.height)
-							
-							NavigationLink(
-								destination: ImageDetailScreen(imageResponse: item)
-							) {
-								ImageItemView(imageUrl: item.url)
-									.frame(height: displayHeight)
-									.clipShape(RoundedRectangle(cornerRadius: 10))
-									.padding(.bottom, -6)
-									.padding(.horizontal, 2)
-							}
-						}
-						
-						if appManager.isLoading {
-							ProgressView()
-								.padding(.top, 12)
-						} else {
-							Text(bottomText)
-								.opacity(0.4)
-								.font(.subheadline)
-								.padding(.top, 6)
-						}
-					}
-				}
-				.scrollPosition($scrollPosition)
-				.onTapGesture(count: 2) {
-					withAnimation() {
-						shouldHideToolbars.toggle()
-					}
-				}
-				.onScrollGeometryChange(for: ScrollState.self) { geometry in
-					let contentHeight = geometry.contentSize.height
-					let containerHeight = geometry.containerSize.height
-					let currentOffset = geometry.contentOffset.y
-					
-					let reachedBottom = currentOffset + containerHeight >= contentHeight
-					
-					return ScrollState(offset: currentOffset, isAtBottom: reachedBottom)
-				} action: { oldValue, newValue in
-					let isScrollingDown = newValue.offset > oldValue.offset
-					
-					if abs(newValue.offset - oldValue.offset) >= 40 {
-						if isScrollingDown && !shouldHideToolbars {
-							withAnimation() {
-								shouldHideToolbars = true
-							}
-						} else if !isScrollingDown && shouldHideToolbars {
-							withAnimation() {
-								shouldHideToolbars = false
-							}
-						}
-					}
-					
-					if newValue.isAtBottom && !oldValue.isAtBottom && appManager.filterState.orderBy != .random {
-						Task {
-							await populate()
-						}
-					}
-				}
-				.refreshable {
-					await populate(isFresh: true)
+				} else {
+					ImageListView(
+						imageResponses: appManager.fetchedImageResponses,
+						isLoading: appManager.isLoading,
+						screenWidth: screenWidth,
+						isRandomOrder: appManager.filterState.orderBy == .random,
+						hasMoreImage: appManager.hasMoreImage,
+						populate: { isFresh in
+							await self.populate(isFresh: isFresh)
+						},
+						shouldHideToolbars: $shouldHideToolbars,
+						scrollPosition: $scrollPosition
+					)
 				}
 			}
+			.frame(maxWidth: .infinity, maxHeight: .infinity)
 		}
 		.frame(maxWidth: .infinity, maxHeight: .infinity)
 		.toolbar {
@@ -169,14 +105,11 @@ struct ImageListScreen: View {
 					.matchedTransitionSource(id: "filterSheetSource", in: imageListScreenNameSpace)
 			}
 		}
-		.task {
-			if !isInitialLoadDone {
-				await populate(isFresh: true)
-				isInitialLoadDone = true
-			}
-		}
 		.statusBarHidden(true)
 		.toolbarVisibility(shouldHideToolbars ? .hidden : .visible, for: .navigationBar, .bottomBar)
+		.onAppear {
+			shouldHideToolbars = false
+		}
 		.sheet(isPresented: $isFilterSheetPresented) {
 			FilterSheetView(
 				filterState: $appManager.filterState,

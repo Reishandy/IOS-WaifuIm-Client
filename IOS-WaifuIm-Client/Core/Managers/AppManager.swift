@@ -11,12 +11,17 @@ import SwiftUI
 @Observable
 class AppManager {
 	var fetchedImageResponses: [ResponseImage] = []
-	var fetchedImage: [String: UIImage] = [:]
 	var isLoading: Bool =  false
 	var filterState: FilterState = FilterState.defultFilter
 	var error: APIError? = nil
 	var showError: Bool = false
 	var hasMoreImage: Bool = false
+	
+	init() {
+		Task {
+			await self.fetchImages()
+		}
+	}
 	
 	func fetchImages() async {
 		guard !isLoading else { return }
