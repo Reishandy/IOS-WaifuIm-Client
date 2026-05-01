@@ -1,12 +1,12 @@
 //
-//  ResponseImageFetch.swift
+//  ResponseFetch.swift
 //  IOS-WaifuIm-Client
 //
-//  Created by Muhammad Akbar Reishandy on 30/04/26.
+//  Created by Muhammad Akbar Reishandy on 01/05/26.
 //
 
-nonisolated struct ResponseImageFetch: Decodable {
-	let items: [ResponseImage]
+nonisolated struct ResponseFetch<T: Decodable>: Decodable {
+	let items: [T]
 	let pageNumber: Int
 	let totalPages: Int
 	let totalCount: Int

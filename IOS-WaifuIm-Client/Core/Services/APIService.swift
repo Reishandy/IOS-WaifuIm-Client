@@ -12,8 +12,8 @@ actor APIService {
 	
 	private let apiUrl: String = "https://api.waifu.im/"
 	
-	func fetchImages(filter: FilterState) async throws -> ResponseImageFetch {
-		guard let url = buildUrl(path: .images, filter: filter) else {
+	func fetchData<T: APIResource>(filter: FilterState? = nil) async throws -> ResponseFetch<T> {
+		guard let url = buildUrl(path: T.path, filter: filter) else {
 			throw APIError.invalidURL
 		}
 		
@@ -29,7 +29,7 @@ actor APIService {
 			}
 			
 			if (200...299).contains(httpResponse.statusCode) {
-				return try JSONDecoder().decode(ResponseImageFetch.self, from: data)
+				return try JSONDecoder().decode(ResponseFetch<T>.self, from: data)
 			}
 			
 			if httpResponse.statusCode == 401 {
@@ -104,6 +104,16 @@ actor APIService {
 			}
 		}
 		
-		return URL(string: urlString)
+		// Not a good thing to do really
+		switch path {
+		case .images:
+			return URL(string: urlString)
+		case .tags:
+			urlString += "?PageSize=9999"
+			return URL(string: urlString)
+		case .artists:
+			urlString += "?PageSize=9999"
+			return URL(string: urlString)
+		}
 	}
 }

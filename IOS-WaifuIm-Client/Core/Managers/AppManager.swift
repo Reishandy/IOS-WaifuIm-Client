@@ -11,7 +11,13 @@ import SwiftUI
 @Observable
 class AppManager {
 	var fetchedImageResponses: [ResponseImage] = []
-	var isLoading: Bool =  false
+	var fetchedTagResponses: [ResponseTag] = []
+	var fetchedArtistResponses: [ResponseArtist] = []
+	
+	var isFetchingImages: Bool = false
+	var isFetchingTags: Bool = false
+	var isFetchingArtists: Bool = false
+	
 	var filterState: FilterState = FilterState.defultFilter
 	var error: APIError? = nil
 	var showError: Bool = false
@@ -20,21 +26,22 @@ class AppManager {
 	init() {
 		Task {
 			await self.fetchImages()
+			await self.fetchTags()
+			await self.fetchArtists()
 		}
 	}
 	
 	func fetchImages() async {
-		guard !isLoading else { return }
+		guard !isFetchingImages else { return }
 		
-		self.isLoading = true
+		self.isFetchingImages = true
 		
 		do {
-			let response = try await APIService.shared.fetchImages(filter: self.filterState)
+			let response: ResponseFetch<ResponseImage> = try await APIService.shared.fetchData(filter: self.filterState)
 			
 			self.hasMoreImage = response.hasNextPage
 			
 			for item in response.items {
-				// TODO: Possibly trigger the UIImage fetch here?
 				fetchedImageResponses.append(item)
 			}
 		} catch let apiError as APIError {
@@ -45,6 +52,49 @@ class AppManager {
 			self.showError = true
 		}
 		
-		self.isLoading = false
+		self.isFetchingImages = false
+	}
+	
+	func fetchTags() async {
+		guard !isFetchingTags else { return }
+		
+		self.isFetchingTags = true
+		
+		do {
+			let response: ResponseFetch<ResponseTag> = try await APIService.shared.fetchData()
+			
+			for item in response.items {
+				fetchedTagResponses.append(item)
+			}
+		} catch let apiError as APIError {
+			self.error = apiError
+			self.showError = true
+		} catch {
+			self.error = .serverError
+			self.showError = true
+		}
+		
+		self.isFetchingTags = false
+	}
+	
+	func fetchArtists() async {
+		guard !isFetchingArtists else { return }
+		
+		self.isFetchingArtists = true
+		
+		do {
+			let response: ResponseFetch<ResponseArtist> = try await APIService.shared.fetchData()
+			for item in response.items {
+				fetchedArtistResponses.append(item)
+			}
+		} catch let apiError as APIError {
+			self.error = apiError
+			self.showError = true
+		} catch {
+			self.error = .serverError
+			self.showError = true
+		}
+		
+		self.isFetchingArtists = false
 	}
 }

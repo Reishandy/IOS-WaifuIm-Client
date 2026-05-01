@@ -29,7 +29,7 @@ struct ImageListScreen: View {
 			
 			VStack {
 				if appManager.fetchedImageResponses.isEmpty {
-					if appManager.isLoading {
+					if appManager.isFetchingImages {
 						ProgressView()
 					} else {
 						EmptyStateView(
@@ -41,12 +41,14 @@ struct ImageListScreen: View {
 				} else {
 					ImageListView(
 						imageResponses: appManager.fetchedImageResponses,
-						isLoading: appManager.isLoading,
+						isLoading: appManager.isFetchingImages,
 						screenWidth: screenWidth,
 						isRandomOrder: isRandomOrder,
 						hasMoreImage: appManager.hasMoreImage,
 						populate: { isFresh in
-							await self.populate(isFresh: isFresh)
+							Task {
+								await self.populate(isFresh: isFresh)
+							}
 						},
 						shouldHideToolbars: $shouldHideToolbars,
 						scrollPosition: $scrollPosition
@@ -133,10 +135,12 @@ struct ImageListScreen: View {
 			FilterSheetView(
 				filterState: $appManager.filterState,
 				onApplyPress: {
-					Task {
-						await populate(isFresh: true)
-					}
 					isFilterSheetPresented = false
+					if appManager.filterState != FilterState.defultFilter {
+						Task {
+							await populate(isFresh: true)
+						}
+					}
 				}
 			)
 			.navigationTransition(.zoom(sourceID: "filterSheetSource", in: imageListScreenNameSpace))

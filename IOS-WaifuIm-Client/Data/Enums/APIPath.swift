@@ -7,4 +7,6 @@
 
 enum APIPath: String {
 	case images = "images"
+	case tags = "tags"
+	case artists = "artists"
 }
