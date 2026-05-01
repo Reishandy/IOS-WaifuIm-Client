@@ -13,7 +13,12 @@ struct FilterSheetView: View {
 	
     var body: some View {
 		ZStack() {
-			FilterView(filterState: $filterState)
+			ScrollView {
+				FilterView(filterState: $filterState)
+				
+				Color.clear
+					.frame(height: 40)
+			}
 			
 			VStack(alignment: .trailing) {
 				Spacer()
@@ -46,7 +51,6 @@ struct FilterSheetView: View {
 			}
 			.padding(10)
 		}
-		.padding(10)
 		.animation(.spring, value: filterState)
 		.interactiveDismissDisabled()
     }
@@ -68,5 +72,6 @@ struct FilterSheetView: View {
 				isSheetPresented = false
 			}
 		)
+		.environment(AppManager())
 	}
 }

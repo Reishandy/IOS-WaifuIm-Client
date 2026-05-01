@@ -85,22 +85,34 @@ struct TokenFieldView: View {
 						shouldShowOptions = isFocused
 					}
 				}
-				.overlay(alignment: .bottomLeading) {
-					if shouldShowOptions && itemOptions != nil {
-						ItemOptionsView(
-							parentWidth: fieldWidth,
-							filteredOptions: filteredOptions,
-							tokens: tokens
-						) { token in
-							if !tokens.contains(token) {
-								tokens.append(token)
-							} else {
-								tokens.removeAll(where: { $0 == token } )
+				.toolbar {
+					ToolbarItemGroup(placement: .keyboard) {
+						if isNumeric && isFieldFocused {
+							Button("Enter") {
+								if !tokens.contains(inputText) && itemOptions == nil {
+									tokens.append(inputText)
+									inputText = ""
+								}
+								
+								isFieldFocused = false
 							}
 						}
-						.offset(y: 210)
 					}
 				}
+			
+			if shouldShowOptions && itemOptions != nil {
+				ItemOptionsView(
+					parentWidth: fieldWidth,
+					filteredOptions: filteredOptions,
+					tokens: tokens
+				) { token in
+					if !tokens.contains(token) {
+						tokens.append(token)
+					} else {
+						tokens.removeAll(where: { $0 == token } )
+					}
+				}
+			}
 		}
 		.animation(.spring, value: tokens)
 		.animation(.spring, value: filteredOptions.count)

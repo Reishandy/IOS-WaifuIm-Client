@@ -9,9 +9,9 @@ struct FilterState: Equatable {
 	var isNsfw: BooleanFilterType
 	var includedTags: [String]
 	var excludedTags: [String]
-	var IncludedArtists: [String]
-	var excludedArtiests: [String]
-	var IncludedIds: [String]
+	var includedArtists: [String]
+	var excludedArtists: [String]
+	var includedIds: [String]
 	var excludedIds: [String]
 	var isAnimated: BooleanFilterType
 	var orderBy: OrderByFilterType
@@ -26,9 +26,9 @@ struct FilterState: Equatable {
 		isNsfw: BooleanFilterType.isFalse,
 		includedTags: [],
 		excludedTags: [],
-		IncludedArtists: [],
-		excludedArtiests: [],
-		IncludedIds: [],
+		includedArtists: [],
+		excludedArtists: [],
+		includedIds: [],
 		excludedIds: [],
 		isAnimated: .all,
 		orderBy: .random,

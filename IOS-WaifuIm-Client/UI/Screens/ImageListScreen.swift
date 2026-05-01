@@ -35,8 +35,14 @@ struct ImageListScreen: View {
 						EmptyStateView(
 							iconName: "photo.badge.magnifyingglass.fill",
 							title: "No Images Here",
-							description: "Either it is empty, or you should check the filter (escpecially with the content rating)."
-						)
+							description: "Either it is empty, or you should check the filter (escpecially with the content rating).",
+							actionButtonText: "Reset Filter"
+						) {
+							appManager.filterState = FilterState.defultFilter
+							Task {
+								await populate(isFresh: true)
+							}
+						}
 					}
 				} else {
 					ImageListView(
@@ -113,11 +119,12 @@ struct ImageListScreen: View {
 			ToolbarSpacer(placement: .bottomBar)
 			
 			ToolbarItem(placement: .bottomBar) {
-				Image(systemName: "line.3.horizontal.decrease")
-					.onTapGesture {
-						isFilterSheetPresented = true
-					}
-					.matchedTransitionSource(id: "filterSheetSource", in: imageListScreenNameSpace)
+				Button {
+					isFilterSheetPresented = true
+				} label: {
+					Image(systemName: "line.3.horizontal.decrease")
+				}
+				.matchedTransitionSource(id: "filterSheetSource", in: imageListScreenNameSpace)
 			}
 		}
 		.statusBarHidden(true)

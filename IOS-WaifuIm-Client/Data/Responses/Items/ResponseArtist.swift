@@ -17,7 +17,7 @@ nonisolated struct ResponseArtist: Decodable, Identifiable, Equatable, APIResour
 	let imageCount: Int
 	
 	static var path: APIPath { .artists }
-	var token: String {	self.name }
+	var token: String {	String(self.id) }
 	var tokenTitle: String { self.name }
 	var tokenDescription: String? { nil }
 }

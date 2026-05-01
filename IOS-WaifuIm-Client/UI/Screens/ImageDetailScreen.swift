@@ -130,34 +130,40 @@ struct ImageDetailScreen: View {
 			}
 			
 			ToolbarItem(placement: .bottomBar) {
-				Image(systemName: "folder.fill.badge.plus")
-					.padding(.leading, 14)
-					.onTapGesture {
-						isAlbumSheetPresented = true
-					}
-					.matchedTransitionSource(id: "albumSheetSource", in: imageDetailScreenNameSpace)
+				Button {
+					isAlbumSheetPresented = true
+				} label: {
+					Image(systemName: "folder.fill.badge.plus")
+						.padding(.leading, 6)
+				}
+				.matchedTransitionSource(id: "albumSheetSource", in: imageDetailScreenNameSpace)
 			}
 			
 			ToolbarItem(placement: .bottomBar) {
 				// TODO: Favorites
-				Image(systemName: "heart")
-					.padding(.trailing, 12)
+				Button {
+					
+				} label: {
+					Image(systemName: "heart")
+						.padding(.leading, -6)
+						.padding(.trailing, 4)
+				}
 			}
 			
 			ToolbarSpacer(placement: .bottomBar)
 			
 			ToolbarItem(placement: .bottomBar) {
-				Image(systemName: "info")
-					.onTapGesture {
-						isInfoSheetPresented = true
-					}
-					.matchedTransitionSource(id: "infoSheetSource", in: imageDetailScreenNameSpace)
+				Button {
+					isInfoSheetPresented = true
+				} label: {
+					Image(systemName: "info")
+				}
+				.matchedTransitionSource(id: "infoSheetSource", in: imageDetailScreenNameSpace)
 			}
 		}
 		.statusBarHidden(true)
 		.toolbarVisibility(shouldHideToolbars ? .hidden : .visible, for: .navigationBar, .bottomBar)
 		.sheet(isPresented: $isInfoSheetPresented) {
-			// TODO: Replace placeholders
 			InfoSheetView()
 				.presentationDetents([.medium, .large], selection: $currentInfoSheetDetent)
 				.navigationTransition(.zoom(sourceID: "infoSheetSource", in: imageDetailScreenNameSpace))

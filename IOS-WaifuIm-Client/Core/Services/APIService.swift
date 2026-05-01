@@ -65,16 +65,16 @@ actor APIService {
 				urlString += "ExcludedTags=\(excludedTag)&"
 			}
 			
-			for IncludedArtist in filter.IncludedArtists {
-				urlString += "IncludedArtists=\(IncludedArtist)&"
+			for includedArtists in filter.includedArtists {
+				urlString += "IncludedArtists=\(includedArtists)&"
 			}
 			
-			for excludedArtiest in filter.excludedArtiests {
-				urlString += "ExcludedArtists=\(excludedArtiest)&"
+			for excludedArtists in filter.excludedArtists {
+				urlString += "ExcludedArtists=\(excludedArtists)&"
 			}
 			
-			for IncludedId in filter.IncludedIds {
-				urlString += "IncludedIds=\(IncludedId)&"
+			for includedIds in filter.includedIds {
+				urlString += "IncludedIds=\(includedIds)&"
 			}
 			
 			for excludedId in filter.excludedIds {
