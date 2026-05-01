@@ -88,5 +88,7 @@ struct FilterView: View {
 }
 
 #Preview {
-	FilterView(filterState: .constant(FilterState.defultFilter))
+	@Previewable @State var filter = FilterState.defultFilter
+	
+	FilterView(filterState: $filter	)
 }
