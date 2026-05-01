@@ -124,7 +124,7 @@ struct ImageDetailScreen: View {
 				ToolbarItem(placement: .topBarTrailing) {
 					ShareLink(
 						item: Image(uiImage: uiImage),
-						preview: SharePreview("Share Image #\(imageResponse.id)", image: Image(uiImage: uiImage))
+						preview: SharePreview("Share Image #\(String(imageResponse.id))", image: Image(uiImage: uiImage))
 					)
 				}
 			}

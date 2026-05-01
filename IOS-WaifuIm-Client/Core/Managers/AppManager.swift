@@ -41,7 +41,9 @@ class AppManager {
 			
 			self.hasMoreImage = response.hasNextPage
 			
-			fetchedImageResponses = response.items
+			for item in response.items {
+				fetchedImageResponses.append(item)
+			}
 		} catch let apiError as APIError {
 			self.error = apiError
 			self.showError = true
