@@ -41,9 +41,7 @@ class AppManager {
 			
 			self.hasMoreImage = response.hasNextPage
 			
-			for item in response.items {
-				fetchedImageResponses.append(item)
-			}
+			fetchedImageResponses = response.items
 		} catch let apiError as APIError {
 			self.error = apiError
 			self.showError = true
@@ -63,9 +61,7 @@ class AppManager {
 		do {
 			let response: ResponseFetch<ResponseTag> = try await APIService.shared.fetchData()
 			
-			for item in response.items {
-				fetchedTagResponses.append(item)
-			}
+			fetchedTagResponses = response.items
 		} catch let apiError as APIError {
 			self.error = apiError
 			self.showError = true
@@ -84,9 +80,8 @@ class AppManager {
 		
 		do {
 			let response: ResponseFetch<ResponseArtist> = try await APIService.shared.fetchData()
-			for item in response.items {
-				fetchedArtistResponses.append(item)
-			}
+			
+			fetchedArtistResponses = response.items
 		} catch let apiError as APIError {
 			self.error = apiError
 			self.showError = true

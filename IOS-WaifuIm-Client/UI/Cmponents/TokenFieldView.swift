@@ -9,19 +9,39 @@ import SwiftUI
 
 struct TokenFieldView: View {
 	let fieldText: String
-	let isNumeric: Bool = false
+	var isNumeric: Bool = false
+	var itemOptions: [any TokenDisplayable]? = nil
 	
 	@Binding var tokens: [String]
 	@State private var inputText: String = ""
+	@State private var fieldWidth: CGFloat = 0
+	@FocusState private var isFieldFocused: Bool
+	@State private var shouldShowOptions: Bool = false
 	
-	// TODO: add a list of options use protocol and generics
+	private var itemOptionsDict: [String: String] {
+		guard let itemOptions = itemOptions else { return [:] }
+		
+		return Dictionary(uniqueKeysWithValues: itemOptions.map { ($0.token, $0.tokenTitle) })
+	}
 	
-    var body: some View {
+	private var filteredOptions: [any TokenDisplayable] {
+		guard let itemOptions = itemOptions else { return [] }
+		
+		if inputText.isEmpty {
+			return itemOptions
+		} else {
+			return itemOptions.filter { $0.tokenTitle.localizedCaseInsensitiveContains(inputText) }
+		}
+	}
+	
+	// TODO: Fix the if the options is not null then the 2nd tablet apears inside the textfield
+	
+	var body: some View {
 		VStack(alignment: .leading) {
 			FlowLayout(alignment: .leading, spacing: 8) {
 				ForEach(tokens, id: \.self) { token in
 					HStack(alignment: .center) {
-						Text(token)
+						Text(itemOptionsDict[token] ?? token)
 							.lineLimit(1)
 							.truncationMode(.tail)
 						
@@ -40,13 +60,17 @@ struct TokenFieldView: View {
 			}
 			
 			TextField(fieldText, text: $inputText)
+				.focused($isFieldFocused)
 				.keyboardType(isNumeric ? .numberPad : .default)
 				.padding(.horizontal, 12)
 				.padding(.vertical, 8)
 				.background(Color(uiColor: .tertiarySystemFill))
 				.clipShape(RoundedRectangle(cornerRadius: 8))
+				.background(GeometryReader { geo in
+					Color.clear.onAppear { fieldWidth = geo.size.width }
+				})
 				.onSubmit {
-					if !tokens.contains(inputText) {
+					if !tokens.contains(inputText) && itemOptions == nil {
 						tokens.append(inputText)
 						inputText = ""
 					}
@@ -58,18 +82,118 @@ struct TokenFieldView: View {
 					}
 					return .ignored
 				}
+				.onChange(of: isFieldFocused) { _, isFocused in
+					withAnimation(.spring) {
+						shouldShowOptions = isFocused
+					}
+				}
+				.overlay(alignment: .bottomLeading) {
+					if shouldShowOptions && itemOptions != nil {
+						ItemOptionsView(
+							parentWidth: fieldWidth,
+							filteredOptions: filteredOptions,
+							tokens: tokens
+						) { token in
+							if !tokens.contains(token) {
+								tokens.append(token)
+							} else {
+								tokens.removeAll(where: { $0 == token } )
+							}
+						}
+						.offset(y: 210)
+					}
+				}
 		}
 		.animation(.spring, value: tokens)
-    }
+		.animation(.spring, value: filteredOptions.count)
+	}
 }
 
-#Preview {
+struct ItemOptionsView: View {
+	let parentWidth: CGFloat
+	let filteredOptions: [any TokenDisplayable]
+	let tokens: [String]
+	let onOptionTap: (String) -> Void
+	
+	var body: some View {
+		ScrollView {
+			if filteredOptions.isEmpty {
+				VStack {
+					EmptyStateView(
+						iconName: "tray.fill",
+						title: "No Options",
+						description: "Check your search query",
+						isSmallIcon: true
+					)
+				}
+				.frame(height: 200)
+				.frame(width: parentWidth)
+			} else {
+				VStack(alignment: .leading, spacing: 10) {
+					ForEach(filteredOptions, id: \.token) { option in
+						HStack() {
+							VStack(alignment: .leading, spacing: 4) {
+								Text(option.tokenTitle)
+									.font(.title3)
+								
+								if let description = option.tokenDescription {
+									Text(description)
+										.opacity(0.6)
+								}
+							}
+							
+							Spacer()
+							
+							if tokens.contains(option.token) {
+								Image(systemName: "checkmark")
+							}
+						}
+						.frame(maxWidth: .infinity)
+						.transition(.scale(0.95).combined(with: .opacity))
+						.onTapGesture {
+							onOptionTap(option.token)
+						}
+					}
+				}
+				.padding(16)
+				.frame(maxWidth: .infinity, maxHeight: .infinity)
+			}
+		}
+		.frame(height: 200)
+		.frame(width: parentWidth)
+		.glassEffect(.clear, in: RoundedRectangle(cornerRadius: 12))
+	}
+}
+
+#Preview("No Options") {
 	@Previewable @State var tokens: [String] = [
 		"A", "Some Decent long text", "Ayam", "Goreng", "Kucing", "Enak Dimakan"
 	]
 	
-    TokenFieldView(
+	TokenFieldView(
 		fieldText: "Type something",
+		tokens: $tokens
+	)
+}
+
+#Preview("With Options") {
+	@Previewable @State var tokens: [String] = []
+	
+	let options: [ResponseTag] = (1...10).map { i in
+		ResponseTag(
+			id: i,
+			name: "Tag \(i)",
+			slug: "tag-\(i)",
+			description: "Tag \(i) description",
+			reviewStatus: "",
+			creatorId: i,
+			imageCount: i * 10
+		)
+	}
+	
+	TokenFieldView(
+		fieldText: "Type something",
+		itemOptions: options,
 		tokens: $tokens
 	)
 }

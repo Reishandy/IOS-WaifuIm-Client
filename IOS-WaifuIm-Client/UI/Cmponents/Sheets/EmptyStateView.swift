@@ -11,13 +11,12 @@ struct EmptyStateView: View {
 	var iconName: String
 	var title: String
 	var description: String
-	var action: (() -> Void)? = nil
-	var actionButtonText: String?
+	var isSmallIcon: Bool = false
 	
 	var body: some View {
 		VStack(spacing: 24) {
 			Image(systemName: iconName)
-				.font(.custom("iconExtraLarge", size: 70))
+				.font(isSmallIcon ? .largeTitle : .custom("iconExtraLarge", size: 70))
 				.opacity(0.5)
 			
 			VStack(spacing: 10) {
@@ -29,28 +28,13 @@ struct EmptyStateView: View {
 					.opacity(0.5)
 					.multilineTextAlignment(.center)
 			}
-			
-			if action != nil {
-				Button(actionButtonText ?? "Action", action: action!)
-					.buttonStyle(.glassProminent)
-			}
 		}
 		.padding()
 	}
 }
 
-#Preview("Normal") {
+#Preview {
 	EmptyStateView(
 		iconName: "tray", title: "No Item", description: "Add item first!"
-	)
-}
-
-#Preview("Action") {
-	EmptyStateView(
-		iconName: "tray",
-		title: "No Item",
-		description: "Add item first!",
-		action: {},
-		actionButtonText: "Add Item"
 	)
 }

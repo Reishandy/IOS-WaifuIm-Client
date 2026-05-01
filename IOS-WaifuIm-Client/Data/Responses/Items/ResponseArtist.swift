@@ -5,7 +5,7 @@
 //  Created by Muhammad Akbar Reishandy on 30/04/26.
 //
 
-nonisolated struct ResponseArtist: Decodable, Identifiable, Equatable, APIResource {
+nonisolated struct ResponseArtist: Decodable, Identifiable, Equatable, APIResource, TokenDisplayable {
 	let id: Int
 	let name: String
 	let patreon: String?
@@ -17,4 +17,7 @@ nonisolated struct ResponseArtist: Decodable, Identifiable, Equatable, APIResour
 	let imageCount: Int
 	
 	static var path: APIPath { .artists }
+	var token: String {	self.name }
+	var tokenTitle: String { self.name }
+	var tokenDescription: String? { nil }
 }
