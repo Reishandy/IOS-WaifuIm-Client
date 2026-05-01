@@ -120,10 +120,12 @@ struct ImageDetailScreen: View {
 					.glassEffect(in: RoundedRectangle(cornerRadius: 20))
 			}
 			
-			if loadedImage != nil {
+			if let uiImage = loadedImage {
 				ToolbarItem(placement: .topBarTrailing) {
-					// TODO: Share
-					Image(systemName: "square.and.arrow.up")
+					ShareLink(
+						item: Image(uiImage: uiImage),
+						preview: SharePreview("Share Image #\(imageResponse.id)", image: Image(uiImage: uiImage))
+					)
 				}
 			}
 			
