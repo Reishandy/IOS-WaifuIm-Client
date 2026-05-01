@@ -18,7 +18,11 @@ struct FlowLayout: Layout {
 			alignment: alignment,
 			spacing: spacing
 		)
-		return result.bounds
+		
+		return CGSize(
+			width: proposal.width ?? result.bounds.width,
+			height: result.bounds.height
+		)
 	}
 	
 	func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Void) {

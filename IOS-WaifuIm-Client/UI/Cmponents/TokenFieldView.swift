@@ -34,8 +34,6 @@ struct TokenFieldView: View {
 		}
 	}
 	
-	// TODO: Fix the if the options is not null then the 2nd tablet apears inside the textfield
-	
 	var body: some View {
 		VStack(alignment: .leading) {
 			FlowLayout(alignment: .leading, spacing: 8) {
