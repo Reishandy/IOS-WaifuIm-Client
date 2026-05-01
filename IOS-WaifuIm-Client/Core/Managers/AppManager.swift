@@ -13,23 +13,7 @@ class AppManager {
 	var fetchedImageResponses: [ResponseImage] = []
 	var fetchedImage: [String: UIImage] = [:]
 	var isLoading: Bool =  false
-	var filterState: FilterState = FilterState(
-		isNsfw: BooleanFilterType.isFalse,
-		includedTags: [],
-		excludedTags: [],
-		IncludedArtists: [],
-		excludedArtiests: [],
-		IncludedIds: [],
-		excludedIds: [],
-		isAnimated: .all,
-		orderBy: .random,
-		orientation: .all,
-		page: 1,
-		pageSize: 10,
-		width: nil,
-		height: nil,
-		byteSize: nil
-	)
+	var filterState: FilterState = FilterState.defultFilter
 	var error: APIError? = nil
 	var showError: Bool = false
 	var hasMoreImage: Bool = false

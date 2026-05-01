@@ -5,7 +5,7 @@
 //  Created by Muhammad Akbar Reishandy on 30/04/26.
 //
 
-nonisolated enum SizeFilterType {
+nonisolated enum SizeFilterType: Equatable {
 	case exact(Int)
 	case min(Int)
 	case max(Int)

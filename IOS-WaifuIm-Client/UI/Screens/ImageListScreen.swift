@@ -178,8 +178,14 @@ struct ImageListScreen: View {
 		.statusBarHidden(true)
 		.toolbarVisibility(shouldHideToolbars ? .hidden : .visible, for: .navigationBar, .bottomBar)
 		.sheet(isPresented: $isFilterSheetPresented) {
-			FilterSheetView()
-				.navigationTransition(.zoom(sourceID: "filterSheetSource", in: imageListScreenNameSpace))
+			FilterSheetView(
+				filterState: $appManager.filterState,
+				onDismissPress: {
+					isFilterSheetPresented = false
+				},
+				onApplyPress: {}
+			)
+			.navigationTransition(.zoom(sourceID: "filterSheetSource", in: imageListScreenNameSpace))
 		}
 		.alert(
 			"Oops!",
