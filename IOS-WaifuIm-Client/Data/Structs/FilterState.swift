@@ -20,7 +20,7 @@ struct FilterState: Equatable {
 	var pageSize: Int
 	var width: SizeFilterType?
 	var height: SizeFilterType?
-	var byteSize: Int?
+	var byteSize: SizeFilterType?
 	
 	static let defultFilter: FilterState = FilterState(
 		isNsfw: BooleanFilterType.isFalse,

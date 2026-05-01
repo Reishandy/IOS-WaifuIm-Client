@@ -57,11 +57,6 @@ struct ImageListView: View {
 			}
 		}
 		.scrollPosition($scrollPosition)
-		.onTapGesture(count: 2) {
-			withAnimation() {
-				shouldHideToolbars.toggle()
-			}
-		}
 		.onScrollGeometryChange(for: ScrollState.self) { geometry in
 			let contentHeight = geometry.contentSize.height
 			let containerHeight = geometry.containerSize.height
@@ -71,22 +66,22 @@ struct ImageListView: View {
 			
 			return ScrollState(offset: currentOffset, isAtBottom: reachedBottom)
 		} action: { oldValue, newValue in
-			let isScrollingDown = newValue.offset > oldValue.offset
-			
-			if abs(newValue.offset - oldValue.offset) >= 40 {
-				if isScrollingDown && !shouldHideToolbars {
-					withAnimation() {
-						shouldHideToolbars = true
-					}
-				} else if !isScrollingDown && shouldHideToolbars {
-					withAnimation() {
-						shouldHideToolbars = false
+			Task { @MainActor in
+				let isScrollingDown = newValue.offset > oldValue.offset
+				
+				if abs(newValue.offset - oldValue.offset) >= 40 {
+					if isScrollingDown && !shouldHideToolbars {
+						withAnimation() {
+							shouldHideToolbars = true
+						}
+					} else if !isScrollingDown && shouldHideToolbars {
+						withAnimation() {
+							shouldHideToolbars = false
+						}
 					}
 				}
-			}
-			
-			if newValue.isAtBottom && !oldValue.isAtBottom && !isRandomOrder {
-				Task {
+				
+				if newValue.isAtBottom && !oldValue.isAtBottom && !isRandomOrder {
 					await populate(false)
 				}
 			}

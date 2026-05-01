@@ -24,3 +24,12 @@ nonisolated enum SizeFilterType: Equatable {
 		}
 	}
 }
+
+enum SizeFilterMode: String, CaseIterable, Identifiable {
+	case none = "None"
+	case exact = "Exact"
+	case min = "Min"
+	case max = "Max"
+	case range = "Range"
+	var id: Self { self }
+}

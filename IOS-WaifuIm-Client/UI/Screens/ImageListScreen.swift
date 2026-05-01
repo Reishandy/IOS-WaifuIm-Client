@@ -17,6 +17,10 @@ struct ImageListScreen: View {
 	@State private var isFetchingCooldown: Bool = false
 	@State private var scrollPosition: ScrollPosition = ScrollPosition()
 	
+	private var isRandomOrder: Bool {
+		appManager.filterState.orderBy == .random
+	}
+	
 	var body: some View {
 		@Bindable var appManager = appManager
 		
@@ -39,7 +43,7 @@ struct ImageListScreen: View {
 						imageResponses: appManager.fetchedImageResponses,
 						isLoading: appManager.isLoading,
 						screenWidth: screenWidth,
-						isRandomOrder: appManager.filterState.orderBy == .random,
+						isRandomOrder: isRandomOrder,
 						hasMoreImage: appManager.hasMoreImage,
 						populate: { isFresh in
 							await self.populate(isFresh: isFresh)
@@ -69,12 +73,21 @@ struct ImageListScreen: View {
 			.sharedBackgroundVisibility(.hidden)
 			
 			ToolbarItem(placement: .topBarTrailing) {
-				Image(systemName: "arrow.triangle.2.circlepath")
-					.onTapGesture {
-						Task {
-							await populate(isFresh: true)
+				if isRandomOrder {
+					Image(systemName: "arrow.triangle.2.circlepath")
+						.onTapGesture {
+							Task {
+								await populate(isFresh: true)
+							}
 						}
-					}
+				} else {
+					Image(systemName: "arrow.up")
+						.onTapGesture {
+							withAnimation {
+								scrollPosition.scrollTo(edge: .top)
+							}
+						}
+				}
 			}
 			
 			ToolbarItem(placement: .bottomBar) {
@@ -108,15 +121,23 @@ struct ImageListScreen: View {
 		.statusBarHidden(true)
 		.toolbarVisibility(shouldHideToolbars ? .hidden : .visible, for: .navigationBar, .bottomBar)
 		.onAppear {
-			shouldHideToolbars = false
+			DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+				if shouldHideToolbars {
+					withAnimation {
+						shouldHideToolbars = false
+					}
+				}
+			}
 		}
 		.sheet(isPresented: $isFilterSheetPresented) {
 			FilterSheetView(
 				filterState: $appManager.filterState,
-				onDismissPress: {
+				onApplyPress: {
+					Task {
+						await populate(isFresh: true)
+					}
 					isFilterSheetPresented = false
-				},
-				onApplyPress: {}
+				}
 			)
 			.navigationTransition(.zoom(sourceID: "filterSheetSource", in: imageListScreenNameSpace))
 		}

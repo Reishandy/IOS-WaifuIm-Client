@@ -9,23 +9,13 @@ import SwiftUI
 
 struct FilterSheetView: View {
 	@Binding var filterState: FilterState
-	let onDismissPress: () -> Void
 	let onApplyPress: () -> Void
 	
     var body: some View {
-		ZStack(alignment: .topTrailing) {
+		ZStack() {
 			FilterView(filterState: $filterState)
 			
 			VStack(alignment: .trailing) {
-				Button {
-					onDismissPress()
-				} label: {
-					Image(systemName: "xmark")
-						.font(.title2)
-						.padding(.vertical, 4)
-				}
-				.buttonStyle(.glass)
-				
 				Spacer()
 				
 				HStack {
@@ -46,7 +36,7 @@ struct FilterSheetView: View {
 					Button {
 						onApplyPress()
 					} label: {
-						Text("Apply")
+						Text("Done")
 							.padding(.vertical, 4)
 							.padding(.horizontal, 12)
 					}
@@ -58,6 +48,7 @@ struct FilterSheetView: View {
 		}
 		.padding(10)
 		.animation(.spring, value: filterState)
+		.interactiveDismissDisabled()
     }
 }
 
@@ -73,10 +64,9 @@ struct FilterSheetView: View {
 	.sheet(isPresented: $isSheetPresented) {
 		FilterSheetView(
 			filterState: .constant(FilterState.defultFilter),
-			onDismissPress: {
+			onApplyPress: {
 				isSheetPresented = false
-			},
-			onApplyPress: {}
+			}
 		)
 	}
 }
