@@ -15,7 +15,7 @@ struct ImageListView: View {
 	let screenWidth: CGFloat
 	let isRandomOrder: Bool
 	let hasMoreImage: Bool
-	let populate: (Bool) async -> Void
+	let populate: (Bool) -> Void
 	
 	@Binding var shouldHideToolbars: Bool
 	@Binding var scrollPosition: ScrollPosition
@@ -41,19 +41,17 @@ struct ImageListView: View {
 							imageResponse: item,
 							onTagTap: {	slug in
 								appManager.filterState = FilterState.defultFilter
+								appManager.filterState.orderBy = .uploadedAt
 								appManager.filterState.includedTags = [slug]
 								
-								Task {
-									await populate(true)
-								}
+								populate(true)
 							},
 							onArtistTap: { id in
 								appManager.filterState = FilterState.defultFilter
+								appManager.filterState.orderBy = .uploadedAt
 								appManager.filterState.includedArtists = [id]
 								
-								Task {
-									await populate(true)
-								}
+								populate(true)
 							}
 						)
 					) {
@@ -102,12 +100,12 @@ struct ImageListView: View {
 				}
 				
 				if newValue.isAtBottom && !oldValue.isAtBottom && !isRandomOrder {
-					await populate(false)
+					populate(false)
 				}
 			}
 		}
 		.refreshable {
-			await populate(true)
+			populate(true)
 		}
     }
 }

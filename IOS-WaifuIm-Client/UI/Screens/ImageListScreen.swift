@@ -39,9 +39,7 @@ struct ImageListScreen: View {
 							actionButtonText: "Reset Filter"
 						) {
 							appManager.filterState = FilterState.defultFilter
-							Task {
-								await populate(isFresh: true)
-							}
+							populate(isFresh: true)
 						}
 					}
 				} else {
@@ -52,9 +50,7 @@ struct ImageListScreen: View {
 						isRandomOrder: isRandomOrder,
 						hasMoreImage: appManager.hasMoreImage,
 						populate: { isFresh in
-							Task {
-								await self.populate(isFresh: isFresh)
-							}
+							self.populate(isFresh: isFresh)
 						},
 						shouldHideToolbars: $shouldHideToolbars,
 						scrollPosition: $scrollPosition
@@ -84,9 +80,7 @@ struct ImageListScreen: View {
 				if isRandomOrder {
 					Image(systemName: "arrow.triangle.2.circlepath")
 						.onTapGesture {
-							Task {
-								await populate(isFresh: true)
-							}
+							populate(isFresh: true)
 						}
 				} else {
 					Image(systemName: "arrow.up")
@@ -143,10 +137,8 @@ struct ImageListScreen: View {
 				filterState: $appManager.filterState,
 				onApplyPress: {
 					isFilterSheetPresented = false
-					if appManager.filterState != FilterState.defultFilter {
-						Task {
-							await populate(isFresh: true)
-						}
+					Task {
+						populate(isFresh: true)
 					}
 				}
 			)
@@ -160,7 +152,7 @@ struct ImageListScreen: View {
 			Button("OK", role: .cancel) { }
 			Button("Retry") {
 				Task {
-					await populate(isFresh: true)
+					populate(isFresh: true)
 				}
 			}
 		} message: { error in
@@ -169,7 +161,7 @@ struct ImageListScreen: View {
 		.animation(.easeInOut, value: appManager.fetchedImageResponses)
 	}
 	
-	private func populate(isFresh: Bool = false) async {
+	private func populate(isFresh: Bool = false) {
 		guard !isFetchingCooldown else { return }
 		
 		isFetchingCooldown = true
@@ -189,7 +181,9 @@ struct ImageListScreen: View {
 			appManager.filterState.page += 1
 		}
 		
-		await appManager.fetchImages()
+		Task {
+			await appManager.fetchImages()
+		}
 	}
 }
 
