@@ -16,6 +16,7 @@ struct ImageListScreen: View {
 	@State private var isFilterSheetPresented: Bool = false
 	@State private var isFetchingCooldown: Bool = false
 	@State private var scrollPosition: ScrollPosition = ScrollPosition()
+	@State private var isAccountShown: Bool = false
 	
 	private var isRandomOrder: Bool {
 		appManager.filterState.orderBy == .random
@@ -98,10 +99,17 @@ struct ImageListScreen: View {
 			
 			ToolbarItem(placement: .topBarTrailing) {
 				Button {
-					
+					isAccountShown.toggle()
 				} label: {
 					Image(systemName: "person")
 				}
+				.popover(isPresented: $isAccountShown) {
+					AccountView()
+						.padding()
+						.frame(width: 200, height: 200)
+						.presentationCompactAdaptation(.popover)
+				}
+				
 			}
 			
 			ToolbarItem(placement: .bottomBar) {

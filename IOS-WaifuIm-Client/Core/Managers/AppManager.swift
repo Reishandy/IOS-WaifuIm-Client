@@ -45,6 +45,8 @@ class AppManager {
 				fetchedImageResponses.append(item)
 			}
 		} catch let apiError as APIError {
+			// TODO: Check 401 then reset account
+			
 			self.error = apiError
 			self.showError = true
 		} catch {
@@ -65,6 +67,8 @@ class AppManager {
 			
 			fetchedTagResponses = response.items
 		} catch let apiError as APIError {
+			// TODO: Check 401 then reset account
+			
 			self.error = apiError
 			self.showError = true
 		} catch {
@@ -85,6 +89,8 @@ class AppManager {
 			
 			fetchedArtistResponses = response.items
 		} catch let apiError as APIError {
+			// TODO: Check 401 then reset account
+			
 			self.error = apiError
 			self.showError = true
 		} catch {

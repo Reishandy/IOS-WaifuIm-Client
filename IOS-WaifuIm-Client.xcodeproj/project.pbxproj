@@ -10,9 +10,22 @@
 		8B4437062FA2FB1D00F6733B /* IOS-WaifuIm-Client.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "IOS-WaifuIm-Client.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		8B68E6AF2FA5DC1600A67B30 /* Exceptions for "IOS-WaifuIm-Client" folder in "IOS-WaifuIm-Client" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8B4437052FA2FB1D00F6733B /* IOS-WaifuIm-Client */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8B4437082FA2FB1D00F6733B /* IOS-WaifuIm-Client */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				8B68E6AF2FA5DC1600A67B30 /* Exceptions for "IOS-WaifuIm-Client" folder in "IOS-WaifuIm-Client" target */,
+			);
 			path = "IOS-WaifuIm-Client";
 			sourceTree = "<group>";
 		};
@@ -256,6 +269,7 @@
 				DEVELOPMENT_TEAM = 6H8PJSZGXA;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "IOS-WaifuIm-Client/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Waifu.im;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -290,6 +304,7 @@
 				DEVELOPMENT_TEAM = 6H8PJSZGXA;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "IOS-WaifuIm-Client/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Waifu.im;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
