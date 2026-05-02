@@ -111,7 +111,7 @@ struct ImageListScreen: View {
 				NavigationLink(
 					destination: ArtistScreen()
 				) {
-					Image(systemName: "person.3.fill")
+					Image(systemName: "person.2.fill")
 						.padding(.trailing, 4)
 				}
 			}

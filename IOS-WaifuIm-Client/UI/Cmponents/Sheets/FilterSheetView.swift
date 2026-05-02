@@ -17,7 +17,7 @@ struct FilterSheetView: View {
 				FilterView(filterState: $filterState)
 				
 				Color.clear
-					.frame(height: 40)
+					.frame(height: 50)
 			}
 			
 			VStack(alignment: .trailing) {
@@ -49,7 +49,7 @@ struct FilterSheetView: View {
 				}
 				.padding(.bottom, -20)
 			}
-			.padding(10)
+			.padding(25)
 		}
 		.animation(.spring, value: filterState)
 		.interactiveDismissDisabled()

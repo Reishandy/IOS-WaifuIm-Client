@@ -10,11 +10,10 @@ import SwiftUI
 struct ImageDetailScreen: View {
 	@Namespace private var imageDetailScreenNameSpace
 	
-	var imageResponse: ResponseImage
+	let imageResponse: ResponseImage
 	
 	@State private var shouldHideToolbars: Bool = false
 	@State private var isInfoSheetPresented: Bool = false
-	@State private var currentInfoSheetDetent: PresentationDetent = .medium
 	@State private var isAlbumSheetPresented: Bool = false
 	@State private var currentAlbumSheetDetent: PresentationDetent = .medium
 	@State private var currentZoom: CGFloat = 0.0
@@ -113,7 +112,7 @@ struct ImageDetailScreen: View {
 		.ignoresSafeArea()
 		.toolbar {
 			ToolbarItem(placement: .principal) {
-				Text("Image #1234")
+				Text("Image #\(String(imageResponse.id))")
 					.opacity(0.5)
 					.padding(.horizontal, 16)
 					.padding(.vertical, 12)
@@ -164,8 +163,8 @@ struct ImageDetailScreen: View {
 		.statusBarHidden(true)
 		.toolbarVisibility(shouldHideToolbars ? .hidden : .visible, for: .navigationBar, .bottomBar)
 		.sheet(isPresented: $isInfoSheetPresented) {
-			InfoSheetView()
-				.presentationDetents([.medium, .large], selection: $currentInfoSheetDetent)
+			InfoSheetView(imageResponse: imageResponse)
+				.presentationDetents([.medium])
 				.navigationTransition(.zoom(sourceID: "infoSheetSource", in: imageDetailScreenNameSpace))
 		}
 		.sheet(isPresented: $isAlbumSheetPresented) {
@@ -178,6 +177,6 @@ struct ImageDetailScreen: View {
 
 #Preview {
 	NavigationStack {
-		ImageDetailScreen(imageResponse: ResponseImage(id: 1, perceptualHash: "", dominantColor: "", source: "", artists: [], uploaderId: 0, uploadedAt: "", isNsfw: false, isAnimated: false, width: 792, height: 729, byteSize: 48956, url: "https://github.com/Reishandy/Reishandy/blob/85b5bd0ef00735d277eaf41db3f28a5eb6e2c63a/repo/michiru_profile.webp?raw=true", tags: [], reviewStatus: "", favorites: 1, likedAt: .now, addedToAlbumAt: .now, albums: []))
+		ImageDetailScreen(imageResponse: ResponseImage.mock)
 	}
 }

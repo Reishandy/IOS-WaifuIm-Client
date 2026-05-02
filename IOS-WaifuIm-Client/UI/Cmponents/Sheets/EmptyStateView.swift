@@ -11,14 +11,14 @@ struct EmptyStateView: View {
 	var iconName: String
 	var title: String
 	var description: String
-	var isSmallIcon: Bool = false
+	var isSmall: Bool = false
 	var actionButtonText: String?
 	var action: (() -> Void)? = nil
 	
 	var body: some View {
-		VStack(spacing: 24) {
+		VStack(spacing: isSmall ? 8 : 24) {
 			Image(systemName: iconName)
-				.font(isSmallIcon ? .largeTitle : .custom("iconExtraLarge", size: 70))
+				.font(isSmall ? .title : .custom("iconExtraLarge", size: 70))
 				.opacity(0.5)
 			
 			VStack(spacing: 10) {

@@ -24,9 +24,31 @@ nonisolated struct ResponseImage: Decodable, Identifiable, Equatable, APIResourc
 	let tags: [ResponseTag]
 	let reviewStatus: String?
 	let favorites: Int
-	let likedAt: Date?
-	let addedToAlbumAt: Date?
+	let likedAt: String?
+	let addedToAlbumAt: String?
 	let albums: [ResponseAlbum]
 	
 	static var path: APIPath { .images }
+	
+	static let mock: ResponseImage = ResponseImage(
+		id: 1,
+		perceptualHash: "f998c2278ed4134f",
+		dominantColor: "#FFFFFF",
+		source: "https://reishandy.id",
+		artists: [ResponseArtist.mocks.first!],
+		uploaderId: 123,
+		uploadedAt: "2021-11-02T11:16:19.048684Z",
+		isNsfw: false,
+		isAnimated: false,
+		width: 792,
+		height: 729,
+		byteSize: 48956,
+		url: "https://github.com/Reishandy/Reishandy/blob/85b5bd0ef00735d277eaf41db3f28a5eb6e2c63a/repo/michiru_profile.webp?raw=true",
+		tags: ResponseTag.mocks,
+		reviewStatus: "Accepted",
+		favorites: 143,
+		likedAt: nil,
+		addedToAlbumAt: nil,
+		albums: []
+	)
 }

@@ -133,7 +133,7 @@ struct ItemOptionsView: View {
 						iconName: "tray.fill",
 						title: "No Options",
 						description: "Check your search query",
-						isSmallIcon: true
+						isSmall: true
 					)
 				}
 				.frame(height: 200)
