@@ -25,7 +25,7 @@ struct ImageItemView: View {
 					.overlay {
 						if imageLoaderManager.isError {
 							VStack(spacing: 10) {
-								Image(systemName: "photo.trianglebadge.exclamationmark.fill")
+								Image(systemName: "photo.trianglebadge.exclamationmark")
 									.font(.largeTitle)
 									.foregroundStyle(.black.opacity(0.5))
 								

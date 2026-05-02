@@ -33,7 +33,7 @@ struct ImageListScreen: View {
 						ProgressView()
 					} else {
 						EmptyStateView(
-							iconName: "photo.badge.magnifyingglass.fill",
+							iconName: "photo.badge.magnifyingglass",
 							title: "No Images Here",
 							description: "Either it is empty, or you should check the filter (escpecially with the content rating).",
 							actionButtonText: "Reset Filter"
@@ -78,17 +78,29 @@ struct ImageListScreen: View {
 			
 			ToolbarItem(placement: .topBarTrailing) {
 				if isRandomOrder {
-					Image(systemName: "arrow.triangle.2.circlepath")
-						.onTapGesture {
-							populate(isFresh: true)
-						}
+					Button {
+						populate(isFresh: true)
+					} label: {
+						Image(systemName: "arrow.triangle.2.circlepath")
+					}
 				} else {
-					Image(systemName: "arrow.up")
-						.onTapGesture {
-							withAnimation {
-								scrollPosition.scrollTo(edge: .top)
-							}
+					Button {
+						withAnimation {
+							scrollPosition.scrollTo(edge: .top)
 						}
+					} label: {
+						Image(systemName: "arrow.up")
+					}
+				}
+			}
+			
+			ToolbarSpacer(placement: .topBarTrailing)
+			
+			ToolbarItem(placement: .topBarTrailing) {
+				Button {
+					
+				} label: {
+					Image(systemName: "person")
 				}
 			}
 			
@@ -104,8 +116,8 @@ struct ImageListScreen: View {
 						}
 					)
 				) {
-					Image(systemName: "tag.fill")
-						.padding(.trailing, -20)
+					Image(systemName: "tag")
+						.padding(.trailing, -30)
 				}
 			}
 			
@@ -121,8 +133,17 @@ struct ImageListScreen: View {
 						}
 					)
 				) {
-					Image(systemName: "person.2.fill")
-						.padding(.trailing, 4)
+					Image(systemName: "person.2")
+						.padding(.trailing, -20)
+				}
+			}
+			
+			ToolbarItem(placement: .bottomBar) {
+				NavigationLink(
+					destination: AlbumScreen()
+				) {
+					Image(systemName: "folder")
+						.padding(.trailing, 10)
 				}
 			}
 			

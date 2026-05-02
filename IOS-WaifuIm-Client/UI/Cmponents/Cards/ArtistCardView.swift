@@ -23,7 +23,7 @@ struct ArtistCardView: View {
 					.font(.subheadline)
 					.opacity(0.5)
 				
-				Image(systemName: "photo.fill")
+				Image(systemName: "photo")
 					.font(.subheadline)
 					.opacity(0.5)
 			}

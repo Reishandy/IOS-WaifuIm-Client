@@ -130,7 +130,7 @@ struct ItemOptionsView: View {
 			if filteredOptions.isEmpty {
 				VStack {
 					EmptyStateView(
-						iconName: "tray.fill",
+						iconName: "tray",
 						title: "No Options",
 						description: "Check your search query",
 						isSmall: true

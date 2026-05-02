@@ -147,7 +147,7 @@ struct ImageDetailScreen: View {
 				Button {
 					isAlbumSheetPresented = true
 				} label: {
-					Image(systemName: "folder.fill.badge.plus")
+					Image(systemName: "folder.badge.plus")
 						.padding(.leading, 6)
 				}
 				.matchedTransitionSource(id: "albumSheetSource", in: imageDetailScreenNameSpace)
