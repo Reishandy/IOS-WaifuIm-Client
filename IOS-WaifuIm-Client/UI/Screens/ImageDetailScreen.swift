@@ -9,8 +9,11 @@ import SwiftUI
 
 struct ImageDetailScreen: View {
 	@Namespace private var imageDetailScreenNameSpace
+	@Environment(\.dismiss) var dismiss
 	
 	let imageResponse: ResponseImage
+	let onTagTap: (String) -> Void
+	let onArtistTap: (String) -> Void
 	
 	@State private var shouldHideToolbars: Bool = false
 	@State private var isInfoSheetPresented: Bool = false
@@ -163,9 +166,23 @@ struct ImageDetailScreen: View {
 		.statusBarHidden(true)
 		.toolbarVisibility(shouldHideToolbars ? .hidden : .visible, for: .navigationBar, .bottomBar)
 		.sheet(isPresented: $isInfoSheetPresented) {
-			InfoSheetView(imageResponse: imageResponse)
-				.presentationDetents([.medium])
-				.navigationTransition(.zoom(sourceID: "infoSheetSource", in: imageDetailScreenNameSpace))
+			InfoSheetView(
+				imageResponse: imageResponse,
+				onTagTap: { slug in
+					isInfoSheetPresented = false
+					dismiss()
+					
+					onTagTap(slug)
+				},
+				onArtistTap: { id in
+					isInfoSheetPresented = false
+					dismiss()
+					
+					onArtistTap(id)
+				}
+			)
+			.presentationDetents([.medium])
+			.navigationTransition(.zoom(sourceID: "infoSheetSource", in: imageDetailScreenNameSpace))
 		}
 		.sheet(isPresented: $isAlbumSheetPresented) {
 			AlbumSheetView()
@@ -177,6 +194,10 @@ struct ImageDetailScreen: View {
 
 #Preview {
 	NavigationStack {
-		ImageDetailScreen(imageResponse: ResponseImage.mock)
+		ImageDetailScreen(
+			imageResponse: ResponseImage.mock,
+			onTagTap: {	_ in },
+			onArtistTap: { _ in }
+		)
 	}
 }

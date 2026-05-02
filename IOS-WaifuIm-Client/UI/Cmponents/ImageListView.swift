@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ImageListView: View {
+	@Environment(AppManager.self) private var appManager
+	
 	let imageResponses: [ResponseImage]
 	let isLoading: Bool
 	let screenWidth: CGFloat
@@ -35,7 +37,25 @@ struct ImageListView: View {
 					let displayHeight = (screenWidth / CGFloat(item.width)) * CGFloat(item.height)
 					
 					NavigationLink(
-						destination: ImageDetailScreen(imageResponse: item)
+						destination: ImageDetailScreen(
+							imageResponse: item,
+							onTagTap: {	slug in
+								appManager.filterState = FilterState.defultFilter
+								appManager.filterState.includedTags = [slug]
+								
+								Task {
+									await populate(true)
+								}
+							},
+							onArtistTap: { id in
+								appManager.filterState = FilterState.defultFilter
+								appManager.filterState.includedArtists = [id]
+								
+								Task {
+									await populate(true)
+								}
+							}
+						)
 					) {
 						ImageItemView(imageUrl: item.url)
 							.frame(height: displayHeight)

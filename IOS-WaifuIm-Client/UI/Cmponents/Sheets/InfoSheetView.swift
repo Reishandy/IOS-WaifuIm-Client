@@ -8,11 +8,27 @@
 import SwiftUI
 
 struct InfoSheetView: View {
+	@Environment(AppManager.self) private var appManager
+	
 	let imageResponse: ResponseImage
+	let onTagTap: (String) -> Void
+	let onArtistTap: (String) -> Void
 	
 	@State private var isColorCopied: Bool = false
 	
-    var body: some View {
+	private var realTags: [ResponseTag] {
+		let targetTagIds = Set(imageResponse.tags.map { $0.id })
+		
+		return appManager.fetchedTagResponses.filter { targetTagIds.contains($0.id) }
+	}
+	
+	private var realArtists: [ResponseArtist] {
+		let targetArtistIds = Set(imageResponse.artists.map { $0.id })
+		
+		return appManager.fetchedArtistResponses.filter { targetArtistIds.contains($0.id) }
+	}
+	
+	var body: some View {
 		ScrollView {
 			VStack(alignment: .leading, spacing: 10) {
 				HStack(alignment: .center) {
@@ -95,46 +111,59 @@ struct InfoSheetView: View {
 				
 				Divider()
 				
-				// TODO: Navigate the tags and artist with the search param
-				
 				Text("Tags")
 					.font(.title3)
 					.bold()
 				
-				ScrollView(.horizontal) {
-					if imageResponse.tags.isEmpty {
-						EmptyStateView(
-							iconName: "tag.slash",
-							title: "No Tags",
-							description: "No tags are associated with this image",
-							isSmall: true
-						)
-					} else {
-						
+				
+				if realTags.isEmpty {
+					EmptyStateView(
+						iconName: "tag.slash",
+						title: "No Tags",
+						description: "No tags are associated with this image",
+						isSmall: true
+					)
+				} else {
+					ScrollView(.horizontal) {
+						HStack {
+							ForEach(realTags) { tag in
+								TagCardView(responseTag: tag)
+									.frame(maxWidth: 200)
+									.onTapGesture {
+										onTagTap(tag.slug)
+									}
+							}
+						}
 					}
+					.scrollIndicators(.hidden)
 				}
 				
 				Text("Artists")
 					.font(.title3)
 					.bold()
 				
-				VStack {
-					if imageResponse.tags.isEmpty {
-						EmptyStateView(
-							iconName: "person.2.slash",
-							title: "No Artists",
-							description: "No artists are associated with this image",
-							isSmall: true
-						)
-					} else {
-						
+				if realArtists.isEmpty {
+					EmptyStateView(
+						iconName: "person.2.slash",
+						title: "No Artists",
+						description: "No artists are associated with this image",
+						isSmall: true
+					)
+				} else {
+					VStack {
+						ForEach(realArtists) { artist in
+							ArtistCardView(responseArtist: artist)
+								.onTapGesture {
+									onArtistTap(String(artist.id))
+								}
+						}
 					}
 				}
 			}
 			.padding(24)
 			.frame(maxWidth: .infinity, alignment: .leading)
 		}
-    }
+	}
 }
 
 #Preview {
@@ -148,8 +177,13 @@ struct InfoSheetView: View {
 		.buttonStyle(.glassProminent)
 	}
 	.sheet(isPresented: $isSheetPresented) {
-		InfoSheetView(imageResponse: ResponseImage.mock)
-			.presentationDetents([.medium])
+		InfoSheetView(
+			imageResponse: ResponseImage.mock,
+			onTagTap: {	_ in },
+			onArtistTap: { _ in }
+		)
+		.presentationDetents([.medium])
+		.environment(AppManager())
 	}
-    
+	
 }
