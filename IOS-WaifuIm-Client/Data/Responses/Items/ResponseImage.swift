@@ -33,7 +33,7 @@ nonisolated struct ResponseImage: Decodable, Identifiable, Equatable, APIResourc
 	static let mock: ResponseImage = ResponseImage(
 		id: 1,
 		perceptualHash: "f998c2278ed4134f",
-		dominantColor: "#FFFFFF",
+		dominantColor: "#FF746C",
 		source: "https://reishandy.id",
 		artists: [ResponseArtist.mocks.first!],
 		uploaderId: 123,

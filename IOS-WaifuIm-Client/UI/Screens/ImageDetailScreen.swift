@@ -110,6 +110,18 @@ struct ImageDetailScreen: View {
 				)
 			}
 			.frame(maxWidth: .infinity, maxHeight: .infinity)
+			.background(
+				LinearGradient(
+					stops: [
+						.init(color: .clear, location: 0),
+						.init(color: Color(uiColor: UIColor(hex: imageResponse.dominantColor)!), location: 0.5),
+						.init(color: .clear, location: 1.0)
+					],
+					startPoint: .top,
+					endPoint: .bottom
+				)
+				.ignoresSafeArea()
+			)
 		}
 		.frame(maxWidth: .infinity, maxHeight: .infinity)
 		.ignoresSafeArea()
