@@ -74,6 +74,11 @@ class AppManager {
 		}
 	}
 	
+	func removeAPIKey() {
+		self.keychain["api_key"] = nil
+		self.profile = nil
+	}
+	
 	private func doApiRequest(action: () async throws -> Void) async {
 		do {
 			try await action()

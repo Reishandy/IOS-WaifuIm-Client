@@ -9,16 +9,63 @@ import SwiftUI
 
 struct AccountView: View {
 	let onSaveTap: (String) -> Void
+	let onLogOutTap: () -> Void
 	var profile: ResponseProfile? = nil
 	
 	@State private var inputText: String = ""
+	@State private var isConfirmaionPresented: Bool = false
 	
-    var body: some View {
+	var body: some View {
 		if let profile = profile {
-			VStack {
-				Text(profile.name)
+			ZStack {
+				if let avatarUrl = profile.avatarUrl {
+					ImageItemView(imageUrl: avatarUrl)
+						.clipShape(RoundedRectangle(cornerRadius: 12))
+				}
+				
+				VStack {
+					Spacer()
+					
+					Text(profile.name)
+						.font(.title2)
+						.bold()
+						.foregroundStyle(.white)
+					
+					Text(profile.role)
+						.opacity(0.6)
+						.foregroundStyle(.white)
+					
+					Button {
+						isConfirmaionPresented = true
+					} label: {
+						Text("Log Out")
+							.frame(maxWidth: .infinity)
+					}
+					.buttonStyle(.glass)
+					.confirmationDialog(
+						"Delete",
+						isPresented: $isConfirmaionPresented
+					) {
+						Button("Remove", role: .destructive) {
+							onLogOutTap()
+						}
+						.buttonStyle(.bordered)
+					} message: {
+						Text("This will delete the saved API Key, which results in the lost of account specific access. The deleted API Key cannot be recovered, are you sure?")
+					}
+				}
+				.padding()
+				.background(
+					LinearGradient(
+						stops: [
+							.init(color: .clear, location: 0),
+							.init(color: .black, location: 1.0)
+						],
+						startPoint: .top,
+						endPoint: .bottom
+					)
+				)
 			}
-			.padding()
 			.frame(width: 200, height: 200)
 		} else {
 			VStack(spacing: 14) {
@@ -43,19 +90,19 @@ struct AccountView: View {
 				}
 				.buttonStyle(.glassProminent)
 			}
-			.padding()
+			.padding(30)
 			.frame(width: 400, height: 250)
 		}
-    }
+	}
 }
 
 #Preview("Logged In") {
-	AccountView(onSaveTap: { _ in }, profile: ResponseProfile.mock)
+	AccountView(onSaveTap: { _ in }, onLogOutTap: {}, profile: ResponseProfile.mock)
 		.border(.blue)
 }
 
 
 #Preview("Not Logged In") {
-	AccountView(onSaveTap: { _ in })
+	AccountView(onSaveTap: { _ in }, onLogOutTap: {})
 		.border(.blue)
 }

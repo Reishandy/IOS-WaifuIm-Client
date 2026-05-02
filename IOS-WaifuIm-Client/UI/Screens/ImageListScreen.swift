@@ -101,9 +101,10 @@ struct ImageListScreen: View {
 				Button {
 					isAccountShown.toggle()
 				} label: {
-					if let profileUrl = appManager.profile?.avatarUrl {
-						ImageItemView(imageUrl: profileUrl)
-							.padding(-15)
+					if let avatarUrl = appManager.profile?.avatarUrl {
+						ImageItemView(imageUrl: avatarUrl)
+							.clipShape(Circle())
+							.padding(-8)
 					} else {
 						Image(systemName: "person")
 					}
@@ -117,11 +118,14 @@ struct ImageListScreen: View {
 								await appManager.storeAPIKey(apiKey: apiKey)
 							}
 						},
+						onLogOutTap: {
+							isAccountShown = false
+							appManager.removeAPIKey()
+						},
 						profile: appManager.profile
 					)
 					.presentationCompactAdaptation(.popover)
 				}
-				
 			}
 			
 			ToolbarItem(placement: .bottomBar) {
