@@ -8,11 +8,45 @@
 import SwiftUI
 
 struct TagsScreen: View {
+	@Environment(AppManager.self) private var appManager
+	@Environment(\.dismiss) var dismiss
+	
+	let onTagTap: (String) -> Void
+	
+	@State private var searchText = ""
+	
+	private var filteredTags: [ResponseTag] {
+		if searchText.isEmpty {
+			return appManager.fetchedTagResponses
+		} else {
+			return appManager.fetchedTagResponses.filter { tag in
+				tag.name.localizedCaseInsensitiveContains(searchText) ||
+				tag.description.localizedCaseInsensitiveContains(searchText)
+			}
+		}
+	}
+	
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+		ScrollView {
+			LazyVStack {
+				ForEach(filteredTags) { tag in
+					TagCardView(responseTag: tag)
+						.onTapGesture {
+							dismiss()
+							onTagTap(tag.slug)
+						}
+				}
+			}
+		}
+		.navigationTitle("All Tags")
+		.toolbarTitleDisplayMode(.inline)
+		.searchable(text: $searchText, placement: .toolbar, prompt: "Search tags...")
     }
 }
 
 #Preview {
-    TagsScreen()
+	NavigationStack {
+		TagsScreen(onTagTap: { _ in })
+			.environment(AppManager())
+	}
 }

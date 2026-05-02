@@ -94,7 +94,15 @@ struct ImageListScreen: View {
 			
 			ToolbarItem(placement: .bottomBar) {
 				NavigationLink(
-					destination: TagsScreen()
+					destination: TagsScreen(
+						onTagTap: {	slug in
+							appManager.filterState = FilterState.defultFilter
+							appManager.filterState.orderBy = .uploadedAt
+							appManager.filterState.includedTags = [slug]
+							
+							populate(isFresh: true)
+						}
+					)
 				) {
 					Image(systemName: "tag.fill")
 						.padding(.trailing, -20)
@@ -103,7 +111,15 @@ struct ImageListScreen: View {
 			
 			ToolbarItem(placement: .bottomBar) {
 				NavigationLink(
-					destination: ArtistScreen()
+					destination: ArtistScreen(
+						onArtistTap: { id in
+							appManager.filterState = FilterState.defultFilter
+							appManager.filterState.orderBy = .uploadedAt
+							appManager.filterState.includedArtists = [id]
+							
+							populate(isFresh: true)
+						}
+					)
 				) {
 					Image(systemName: "person.2.fill")
 						.padding(.trailing, 4)

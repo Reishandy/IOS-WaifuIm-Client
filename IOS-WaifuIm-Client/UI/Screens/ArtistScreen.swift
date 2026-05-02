@@ -8,11 +8,44 @@
 import SwiftUI
 
 struct ArtistScreen: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
+	@Environment(AppManager.self) private var appManager
+	@Environment(\.dismiss) var dismiss
+	
+	let onArtistTap: (String) -> Void
+	
+	@State private var searchText = ""
+	
+	private var filteredArtists: [ResponseArtist] {
+		if searchText.isEmpty {
+			return appManager.fetchedArtistResponses
+		} else {
+			return appManager.fetchedArtistResponses.filter { artist in
+				artist.name.localizedCaseInsensitiveContains(searchText)
+			}
+		}
+	}
+	
+	var body: some View {
+		ScrollView {
+			LazyVStack {
+				ForEach(filteredArtists) { artist in
+					ArtistCardView(responseArtist: artist)
+						.onTapGesture {
+							dismiss()
+							onArtistTap(String(artist.id))
+						}
+				}
+			}
+		}
+		.navigationTitle("All Tags")
+		.toolbarTitleDisplayMode(.inline)
+		.searchable(text: $searchText, placement: .toolbar, prompt: "Search tags...")
+	}
 }
 
 #Preview {
-    ArtistScreen()
+	NavigationStack {
+		ArtistScreen(onArtistTap: { _ in })
+			.environment(AppManager())
+	}
 }
