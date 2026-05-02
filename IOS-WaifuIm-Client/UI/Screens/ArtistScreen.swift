@@ -34,13 +34,15 @@ struct ArtistScreen: View {
 							dismiss()
 							onArtistTap(String(artist.id))
 						}
+						.transition(.scale(0.8).combined(with: .opacity))
 				}
 			}
+			.padding(10)
 		}
-		.padding(10)
 		.navigationTitle("All Artists")
 		.toolbarTitleDisplayMode(.inline)
 		.searchable(text: $searchText, placement: .toolbar, prompt: "Search artists...")
+		.animation(.spring, value: filteredArtists)
 	}
 }
 

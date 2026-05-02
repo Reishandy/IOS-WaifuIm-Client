@@ -35,13 +35,15 @@ struct TagsScreen: View {
 							dismiss()
 							onTagTap(tag.slug)
 						}
+						.transition(.scale(0.8).combined(with: .opacity))
 				}
 			}
+			.padding(10)
 		}
-		.padding(10)
 		.navigationTitle("All Tags")
 		.toolbarTitleDisplayMode(.inline)
 		.searchable(text: $searchText, placement: .toolbar, prompt: "Search tags...")
+		.animation(.spring, value: filteredTags)
     }
 }
 

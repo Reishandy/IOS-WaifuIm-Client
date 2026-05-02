@@ -85,11 +85,14 @@ class AppManager {
 		await doApiRequest {
 			self.profile = try await APIService.shared.fetchData(.profile, apiKey: apiKey)
 		}
+		
+		await self.fetchAlbums()
 	}
 	
 	func removeAPIKey() {
 		self.keychain["api_key"] = nil
 		self.profile = nil
+		self.fetchedAlbumResponses = nil
 	}
 	
 	private func doApiRequest(action: () async throws -> Void) async {

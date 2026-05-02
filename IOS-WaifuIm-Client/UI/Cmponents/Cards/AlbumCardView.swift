@@ -56,7 +56,7 @@ struct AlbumCardView: View {
 						}
 						.buttonStyle(.bordered)
 					} message: {
-						Text("Are you sure you want to remove this album?")
+						Text("Are you sure you want to delete this album?")
 					}
 				}
 			}

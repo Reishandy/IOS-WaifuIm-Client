@@ -32,13 +32,15 @@ struct AlbumScreen: View {
 						onEditTap: { id in },
 						onDeleteTap: { id in }
 					)
+					.transition(.scale(0.8).combined(with: .opacity))
 				}
 			}
+			.padding(10)
 		}
-		.padding(10)
 		.navigationTitle("All Albums")
 		.toolbarTitleDisplayMode(.inline)
 		.searchable(text: $searchText, placement: .toolbar, prompt: "Search albums...")
+		.animation(.spring, value: filteredAlbums)
 	}
 }
 

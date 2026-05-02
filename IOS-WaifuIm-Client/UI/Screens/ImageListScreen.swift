@@ -141,7 +141,7 @@ struct ImageListScreen: View {
 					)
 				) {
 					Image(systemName: "tag")
-						.padding(.trailing, -30)
+						.padding(.trailing, -40)
 				}
 			}
 			
@@ -158,6 +158,7 @@ struct ImageListScreen: View {
 					)
 				) {
 					Image(systemName: "person.2")
+						.padding(.trailing, appManager.fetchedAlbumResponses != nil ? -16 : 8)
 				}
 			}
 			
@@ -167,7 +168,6 @@ struct ImageListScreen: View {
 						destination: AlbumScreen()
 					) {
 						Image(systemName: "folder")
-							.padding(.leading, -20)
 							.padding(.trailing, 10)
 					}
 					.transition(.opacity)
