@@ -101,20 +101,24 @@ struct ImageListScreen: View {
 				Button {
 					isAccountShown.toggle()
 				} label: {
-					Image(systemName: "person")
+					if let profileUrl = appManager.profile?.avatarUrl {
+						ImageItemView(imageUrl: profileUrl)
+							.padding(-15)
+					} else {
+						Image(systemName: "person")
+					}
 				}
 				.popover(isPresented: $isAccountShown) {
 					AccountView(
-						onLoginTap: {
+						onSaveTap: { apiKey in
 							isAccountShown = false
 							
 							Task {
-								await appManager.login()
+								await appManager.storeAPIKey(apiKey: apiKey)
 							}
-						}
+						},
+						profile: appManager.profile
 					)
-					.padding()
-					.frame(width: 200, height: 200)
 					.presentationCompactAdaptation(.popover)
 				}
 				

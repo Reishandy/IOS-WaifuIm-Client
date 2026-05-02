@@ -12,7 +12,7 @@ actor APIService {
 	
 	private let apiUrl: String = "https://api.waifu.im/"
 	
-	func fetchData<T: APIResponse>(jwtToken: String? = nil, filter: FilterState? = nil) async throws -> T {
+	func fetchData<T: APIResponse>(apiKey: String? = nil, filter: FilterState? = nil) async throws -> T {
 		guard let url = buildUrl(path: T.path, filter: filter) else {
 			throw APIError.invalidURL
 		}
@@ -22,8 +22,8 @@ actor APIService {
 			
 			request.setValue("v7", forHTTPHeaderField: "Accept-Version")
 			
-			if let token = jwtToken {
-				request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+			if let apiKey = apiKey {
+				request.setValue(apiKey, forHTTPHeaderField: "X-Api-Key")
 			}
 			
 			let (data, response) = try await URLSession.shared.data(for: request)
@@ -57,7 +57,7 @@ actor APIService {
 	
 	func postData<T: APIResponse, Body: Encodable>(
 		body: Body,
-		jwtToken: String? = nil,
+		apiKey: String? = nil,
 		filter: FilterState? = nil
 	) async throws -> T {
 		guard let url = buildUrl(path: T.path, filter: filter) else {
@@ -72,8 +72,8 @@ actor APIService {
 			request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 			request.setValue("v7", forHTTPHeaderField: "Accept-Version")
 			
-			if let token = jwtToken {
-				request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+			if let apiKey = apiKey {
+				request.setValue(apiKey, forHTTPHeaderField: "X-Api-Key")
 			}
 			
 			request.httpBody = try JSONEncoder().encode(body)
