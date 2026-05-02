@@ -14,6 +14,7 @@ class AppManager {
 	var fetchedImageResponses: [ResponseImage] = []
 	var fetchedTagResponses: [ResponseTag] = []
 	var fetchedArtistResponses: [ResponseArtist] = []
+	var fetchedAlbumResponses: [ResponseAlbum]? = nil
 	var profile: ResponseProfile? = nil
 	
 	var isFetchingImages: Bool = false
@@ -30,19 +31,21 @@ class AppManager {
 			
 			if let apiKey = apiKey {
 				await doApiRequest {
-					self.profile = try await APIService.shared.fetchData(apiKey: apiKey)
+					self.profile = try await APIService.shared.fetchData(.profile, apiKey: apiKey)
 				}
 			}
 			
 			await self.fetchImages()
 			
 			await self.doApiRequest {
-				let artistResponse: ResponseFetch<ResponseArtist> = try await APIService.shared.fetchData(apiKey: apiKey)
+				let artistResponse: ResponseFetch<ResponseArtist> = try await APIService.shared.fetchData(.artists, apiKey: apiKey)
 				fetchedArtistResponses = artistResponse.items
 				
-				let tagResponse: ResponseFetch<ResponseTag> = try await APIService.shared.fetchData(apiKey: apiKey)
+				let tagResponse: ResponseFetch<ResponseTag> = try await APIService.shared.fetchData(.tags, apiKey: apiKey)
 				fetchedTagResponses = tagResponse.items
 			}
+			
+			await self.fetchAlbums()
 		}
 	}
 	
@@ -52,7 +55,7 @@ class AppManager {
 		self.isFetchingImages = true
 		
 		await self.doApiRequest {
-			let response: ResponseFetch<ResponseImage> = try await APIService.shared.fetchData(apiKey: self.keychain["api_key"], filter: self.filterState)
+			let response: ResponseFetch<ResponseImage> = try await APIService.shared.fetchData(.images, apiKey: self.keychain["api_key"], filter: self.filterState)
 			
 			self.hasMoreImage = response.hasNextPage
 			
@@ -64,13 +67,23 @@ class AppManager {
 		self.isFetchingImages = false
 	}
 	
+	func fetchAlbums() async {
+		guard let id = self.profile?.id else { return }
+		
+		await self.doApiRequest {
+			let albumResponse: ResponseFetch<ResponseAlbum> = try await APIService.shared.fetchData(.albums(userId: id), apiKey: self.keychain["api_key"])
+			
+			self.fetchedAlbumResponses = albumResponse.items
+		}
+	}
+	
 	func storeAPIKey(apiKey: String) async {
 		guard apiKey.trimmingCharacters(in: .whitespacesAndNewlines) != "" else { return }
 		
 		self.keychain["api_key"] = apiKey
 		
 		await doApiRequest {
-			self.profile = try await APIService.shared.fetchData(apiKey: apiKey)
+			self.profile = try await APIService.shared.fetchData(.profile, apiKey: apiKey)
 		}
 	}
 	
@@ -83,7 +96,9 @@ class AppManager {
 		do {
 			try await action()
 		} catch let apiError as APIError {
-			// TODO: Check 401 then reset account
+			if apiError == .unauthorized {
+				self.removeAPIKey()
+			}
 			
 			self.error = apiError
 			self.showError = true

@@ -7,7 +7,7 @@
 
 import Foundation
 
-nonisolated struct ResponseImage: Decodable, Identifiable, Equatable, APIResponse {
+nonisolated struct ResponseImage: Decodable, Identifiable, Equatable {
 	let id: Int
 	let perceptualHash: String
 	let dominantColor: String
@@ -27,8 +27,6 @@ nonisolated struct ResponseImage: Decodable, Identifiable, Equatable, APIRespons
 	let likedAt: String?
 	let addedToAlbumAt: String?
 	let albums: [ResponseAlbum]
-	
-	static var path: APIPath { .images }
 	
 	static let mock: ResponseImage = ResponseImage(
 		id: 1,

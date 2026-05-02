@@ -158,16 +158,19 @@ struct ImageListScreen: View {
 					)
 				) {
 					Image(systemName: "person.2")
-						.padding(.trailing, -20)
 				}
 			}
 			
-			ToolbarItem(placement: .bottomBar) {
-				NavigationLink(
-					destination: AlbumScreen()
-				) {
-					Image(systemName: "folder")
-						.padding(.trailing, 10)
+			if appManager.fetchedAlbumResponses != nil {
+				ToolbarItem(placement: .bottomBar) {
+					NavigationLink(
+						destination: AlbumScreen()
+					) {
+						Image(systemName: "folder")
+							.padding(.leading, -20)
+							.padding(.trailing, 10)
+					}
+					.transition(.opacity)
 				}
 			}
 			
@@ -220,6 +223,7 @@ struct ImageListScreen: View {
 			Text(error.localizedDescription)
 		}
 		.animation(.easeInOut, value: appManager.fetchedImageResponses)
+		.animation(.easeInOut, value: appManager.fetchedAlbumResponses != nil)
 	}
 	
 	private func populate(isFresh: Bool = false) {

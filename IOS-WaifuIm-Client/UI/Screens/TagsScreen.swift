@@ -38,6 +38,7 @@ struct TagsScreen: View {
 				}
 			}
 		}
+		.padding(10)
 		.navigationTitle("All Tags")
 		.toolbarTitleDisplayMode(.inline)
 		.searchable(text: $searchText, placement: .toolbar, prompt: "Search tags...")

@@ -37,6 +37,7 @@ struct ArtistScreen: View {
 				}
 			}
 		}
+		.padding(10)
 		.navigationTitle("All Artists")
 		.toolbarTitleDisplayMode(.inline)
 		.searchable(text: $searchText, placement: .toolbar, prompt: "Search artists...")

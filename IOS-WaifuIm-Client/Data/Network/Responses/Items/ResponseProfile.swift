@@ -5,7 +5,7 @@
 //  Created by Muhammad Akbar Reishandy on 02/05/26.
 //
 
-nonisolated struct ResponseProfile: Decodable, APIResponse {
+nonisolated struct ResponseProfile: Decodable {
 	var id: Int
 	var name: String
 	var discordId: String
@@ -18,8 +18,6 @@ nonisolated struct ResponseProfile: Decodable, APIResponse {
 	var jwtRequestCount: Int
 	var uploadedImageCount: Int
 	var albumImageCount: Int
-	
-	static var path: APIPath { .profile }
 	
 	static let mock: ResponseProfile = ResponseProfile(
 		id: 1,

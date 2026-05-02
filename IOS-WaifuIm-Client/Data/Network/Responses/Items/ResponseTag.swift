@@ -5,7 +5,7 @@
 //  Created by Muhammad Akbar Reishandy on 30/04/26.
 //
 
-nonisolated struct ResponseTag: Decodable, Identifiable, Equatable, APIResponse, TokenDisplayable {
+nonisolated struct ResponseTag: Decodable, Identifiable, Equatable, TokenDisplayable {
 	let id: Int
 	let name: String
 	let slug: String
@@ -14,7 +14,6 @@ nonisolated struct ResponseTag: Decodable, Identifiable, Equatable, APIResponse,
 	let creatorId: Int?
 	let imageCount: Int
 	
-	static var path: APIPath { .tags }
 	var token: String {	self.slug }
 	var tokenTitle: String { self.name }
 	var tokenDescription: String? { self.description }

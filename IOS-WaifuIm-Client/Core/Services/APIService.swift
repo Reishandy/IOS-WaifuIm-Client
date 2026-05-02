@@ -12,8 +12,12 @@ actor APIService {
 	
 	private let apiUrl: String = "https://api.waifu.im/"
 	
-	func fetchData<T: APIResponse>(apiKey: String? = nil, filter: FilterState? = nil) async throws -> T {
-		guard let url = buildUrl(path: T.path, filter: filter) else {
+	func fetchData<T>(
+		_ endpoint: APIEndpoint<T>,
+		apiKey: String? = nil,
+		filter: FilterState? = nil
+	) async throws -> T {
+		guard let url = buildUrl(path: endpoint, filter: filter) else {
 			throw APIError.invalidURL
 		}
 		
@@ -55,12 +59,13 @@ actor APIService {
 		}
 	}
 	
-	func postData<T: APIResponse, Body: Encodable>(
-		body: Body,
+	func postData<T, Body: Encodable>(
+		_ endpoint: APIEndpoint<T>,
+		body: Body? = nil,
 		apiKey: String? = nil,
 		filter: FilterState? = nil
 	) async throws -> T {
-		guard let url = buildUrl(path: T.path, filter: filter) else {
+		guard let url = buildUrl(path: endpoint, filter: filter) else {
 			throw APIError.invalidURL
 		}
 		
@@ -76,7 +81,9 @@ actor APIService {
 				request.setValue(apiKey, forHTTPHeaderField: "X-Api-Key")
 			}
 			
-			request.httpBody = try JSONEncoder().encode(body)
+			if let body = body {
+				request.httpBody = try JSONEncoder().encode(body)
+			}
 			
 			let (data, response) = try await URLSession.shared.data(for: request)
 			
@@ -107,8 +114,8 @@ actor APIService {
 		}
 	}
 	
-	private func buildUrl(path: APIPath, filter: FilterState? = nil) -> URL? {
-		var urlString = self.apiUrl + path.rawValue
+	private func buildUrl<T>(path: APIEndpoint<T>, filter: FilterState? = nil) -> URL? {
+		var urlString = self.apiUrl + path.path
 		
 		if let filter {
 			urlString += "?IsNsfw=\(filter.isNsfw.rawValue)&"
@@ -161,9 +168,11 @@ actor APIService {
 		}
 		
 		// Not a good thing to do really
-		if path == .tags {
+		if case .tags = path {
 			urlString += "?PageSize=9999"
-		} else if path == .artists {
+		} else if case .artists = path {
+			urlString += "?PageSize=9999"
+		} else if case .albums = path {
 			urlString += "?PageSize=9999"
 		}
 		
