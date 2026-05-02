@@ -12,7 +12,7 @@ actor APIService {
 	
 	private let apiUrl: String = "https://api.waifu.im/"
 	
-	func fetchData<T: APIResource>(filter: FilterState? = nil) async throws -> ResponseFetch<T> {
+	func fetchData<T: APIResponse>(jwtToken: String? = nil, filter: FilterState? = nil) async throws -> T {
 		guard let url = buildUrl(path: T.path, filter: filter) else {
 			throw APIError.invalidURL
 		}
@@ -22,6 +22,10 @@ actor APIService {
 			
 			request.setValue("v7", forHTTPHeaderField: "Accept-Version")
 			
+			if let token = jwtToken {
+				request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+			}
+			
 			let (data, response) = try await URLSession.shared.data(for: request)
 			
 			guard let httpResponse = response as? HTTPURLResponse else {
@@ -29,7 +33,7 @@ actor APIService {
 			}
 			
 			if (200...299).contains(httpResponse.statusCode) {
-				return try JSONDecoder().decode(ResponseFetch<T>.self, from: data)
+				return try JSONDecoder().decode(T.self, from: data)
 			}
 			
 			if httpResponse.statusCode == 401 {
@@ -47,6 +51,58 @@ actor APIService {
 			throw error
 		} catch {
 			print("> Parsing error: \(error)")
+			throw APIError.decodingError
+		}
+	}
+	
+	func postData<T: APIResponse, Body: Encodable>(
+		body: Body,
+		jwtToken: String? = nil,
+		filter: FilterState? = nil
+	) async throws -> T {
+		guard let url = buildUrl(path: T.path, filter: filter) else {
+			throw APIError.invalidURL
+		}
+		
+		do {
+			var request = URLRequest(url: url)
+			
+			request.httpMethod = "POST"
+			
+			request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+			request.setValue("v7", forHTTPHeaderField: "Accept-Version")
+			
+			if let token = jwtToken {
+				request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+			}
+			
+			request.httpBody = try JSONEncoder().encode(body)
+			
+			let (data, response) = try await URLSession.shared.data(for: request)
+			
+			guard let httpResponse = response as? HTTPURLResponse else {
+				throw APIError.serverError
+			}
+			
+			if (200...299).contains(httpResponse.statusCode) {
+				return try JSONDecoder().decode(T.self, from: data)
+			}
+			
+			if httpResponse.statusCode == 401 {
+				throw APIError.unauthorized
+			}
+			
+			if let errorResponse = try? JSONDecoder().decode(ResponseError.self, from: data) {
+				throw APIError.badRequest(errorResponse)
+			} else {
+				throw APIError.serverError
+			}
+		} catch let error as URLError where error.code == .notConnectedToInternet {
+			throw APIError.noNetwork
+		} catch let error as APIError {
+			throw error
+		} catch {
+			print("> Parsing/Encoding error: \(error)")
 			throw APIError.decodingError
 		}
 	}
@@ -105,15 +161,12 @@ actor APIService {
 		}
 		
 		// Not a good thing to do really
-		switch path {
-		case .images:
-			return URL(string: urlString)
-		case .tags:
+		if path == .tags {
 			urlString += "?PageSize=9999"
-			return URL(string: urlString)
-		case .artists:
+		} else if path == .artists {
 			urlString += "?PageSize=9999"
-			return URL(string: urlString)
 		}
+		
+		return URL(string: urlString)
 	}
 }

@@ -37,9 +37,9 @@ struct ArtistScreen: View {
 				}
 			}
 		}
-		.navigationTitle("All Tags")
+		.navigationTitle("All Artists")
 		.toolbarTitleDisplayMode(.inline)
-		.searchable(text: $searchText, placement: .toolbar, prompt: "Search tags...")
+		.searchable(text: $searchText, placement: .toolbar, prompt: "Search artists...")
 	}
 }
 

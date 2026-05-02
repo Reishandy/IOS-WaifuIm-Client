@@ -20,7 +20,7 @@ enum APIError: LocalizedError, Equatable {
 		case .invalidURL:
 			return "The endpoint URL is invalid."
 		case .badRequest(let responseError):
-			return "\(String(describing: responseError.title)): \(String(describing: responseError.detail))"
+			return "\(responseError.title ?? "Error"): \(responseError.detail ?? "Soething went wrong")"
 		case .unauthorized:
 			return "Your session has expired. Please log in again."
 		case .serverError:

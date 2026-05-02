@@ -104,10 +104,18 @@ struct ImageListScreen: View {
 					Image(systemName: "person")
 				}
 				.popover(isPresented: $isAccountShown) {
-					AccountView()
-						.padding()
-						.frame(width: 200, height: 200)
-						.presentationCompactAdaptation(.popover)
+					AccountView(
+						onLoginTap: {
+							isAccountShown = false
+							
+							Task {
+								await appManager.login()
+							}
+						}
+					)
+					.padding()
+					.frame(width: 200, height: 200)
+					.presentationCompactAdaptation(.popover)
 				}
 				
 			}

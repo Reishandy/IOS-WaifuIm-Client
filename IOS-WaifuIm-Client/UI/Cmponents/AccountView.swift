@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct AccountView: View {
+	let onLoginTap: () -> Void
+	
     var body: some View {
 		VStack {
 			Spacer()
@@ -19,7 +21,7 @@ struct AccountView: View {
 			Spacer()
 			
 			Button {
-				AuthManager.shared.getDiscordOAuthCode()
+				onLoginTap()
 			} label: {
 				Text("Log In")
 					.frame(maxWidth: .infinity)
@@ -30,7 +32,7 @@ struct AccountView: View {
 }
 
 #Preview {
-    AccountView()
+	AccountView(onLoginTap: {})
 		.padding()
 		.frame(width: 200, height: 200)
 		.border(.blue)

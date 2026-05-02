@@ -15,19 +15,24 @@ class AppManager {
 	var fetchedArtistResponses: [ResponseArtist] = []
 	
 	var isFetchingImages: Bool = false
-	var isFetchingTags: Bool = false
-	var isFetchingArtists: Bool = false
-	
 	var filterState: FilterState = FilterState.defultFilter
 	var error: APIError? = nil
 	var showError: Bool = false
 	var hasMoreImage: Bool = false
 	
+	private var jwtToken: String? = nil
+	
 	init() {
 		Task {
 			await self.fetchImages()
-			await self.fetchTags()
-			await self.fetchArtists()
+			
+			await self.doApiRequest {
+				let artistResponse: ResponseFetch<ResponseArtist> = try await APIService.shared.fetchData()
+				fetchedArtistResponses = artistResponse.items
+				
+				let tagResponse: ResponseFetch<ResponseTag> = try await APIService.shared.fetchData()
+				fetchedTagResponses = tagResponse.items
+			}
 		}
 	}
 	
@@ -36,7 +41,7 @@ class AppManager {
 		
 		self.isFetchingImages = true
 		
-		do {
+		await self.doApiRequest {
 			let response: ResponseFetch<ResponseImage> = try await APIService.shared.fetchData(filter: self.filterState)
 			
 			self.hasMoreImage = response.hasNextPage
@@ -44,50 +49,32 @@ class AppManager {
 			for item in response.items {
 				fetchedImageResponses.append(item)
 			}
-		} catch let apiError as APIError {
-			// TODO: Check 401 then reset account
-			
-			self.error = apiError
-			self.showError = true
-		} catch {
-			self.error = .serverError
-			self.showError = true
 		}
 		
 		self.isFetchingImages = false
 	}
 	
-	func fetchTags() async {
-		guard !isFetchingTags else { return }
-		
-		self.isFetchingTags = true
-		
-		do {
-			let response: ResponseFetch<ResponseTag> = try await APIService.shared.fetchData()
+	func login() async {
+		await self.doApiRequest {
+			let discordOauth2Code = try await AuthManager.shared.getDiscordOAuthCode()
 			
-			fetchedTagResponses = response.items
-		} catch let apiError as APIError {
-			// TODO: Check 401 then reset account
+			print(discordOauth2Code)
 			
-			self.error = apiError
-			self.showError = true
-		} catch {
-			self.error = .serverError
-			self.showError = true
+			let response: ResponseJWT = try await APIService.shared.postData(body: BodyJWT(code: discordOauth2Code))
+			
+			self.jwtToken = response.string
+			
+			// TODO: BROKEN... 400
+			
+			print(response)
+			
+			// TODO: Store to shared preference
 		}
-		
-		self.isFetchingTags = false
 	}
 	
-	func fetchArtists() async {
-		guard !isFetchingArtists else { return }
-		
-		self.isFetchingArtists = true
-		
+	private func doApiRequest(action: () async throws -> Void) async {
 		do {
-			let response: ResponseFetch<ResponseArtist> = try await APIService.shared.fetchData()
-			
-			fetchedArtistResponses = response.items
+			try await action()
 		} catch let apiError as APIError {
 			// TODO: Check 401 then reset account
 			
@@ -97,7 +84,5 @@ class AppManager {
 			self.error = .serverError
 			self.showError = true
 		}
-		
-		self.isFetchingArtists = false
 	}
 }

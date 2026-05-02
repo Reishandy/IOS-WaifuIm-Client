@@ -14,7 +14,7 @@ import CryptoKit
 class AuthManager: NSObject, ASWebAuthenticationPresentationContextProviding {
 	static let shared = AuthManager()
 	
-	func getDiscordOAuthCode() -> String? {
+	func getDiscordOAuthCode() async throws -> String {
 		let clientID = "1500032398748811314"
 		let redirectURI = "discord-1500032398748811314://authorize/callback"
 		let scope = "identify"
@@ -32,29 +32,31 @@ class AuthManager: NSObject, ASWebAuthenticationPresentationContextProviding {
 			URLQueryItem(name: "code_challenge_method", value: "S256")
 		]
 		
-		guard let authURL = components?.url else { return nil }
+		guard let authURL = components?.url else { throw URLError(.badURL) }
 		
-		var discordOAuthCode: String? = nil
-		let session = ASWebAuthenticationSession(
-			url: authURL,
-			callbackURLScheme: "discord-1500032398748811314"
-		) { callbackURL, error in
-			if let error = error {
-				print("Auth Error: \(error.localizedDescription)")
-				return
+		return try await withCheckedThrowingContinuation { continuation in
+			let session = ASWebAuthenticationSession(
+				url: authURL,
+				callbackURLScheme: "discord-1500032398748811314"
+			) { callbackURL, error in
+				if let error = error {
+					continuation.resume(throwing: error)
+					return
+				}
+				
+				guard let callbackURL = callbackURL,
+					  let components = URLComponents(string: callbackURL.absoluteString),
+					  let code = components.queryItems?.first(where: { $0.name == "code" })?.value else {
+					continuation.resume(throwing: URLError(.cannotParseResponse))
+					return
+				}
+				
+				continuation.resume(returning: code)
 			}
 			
-			if let callbackURL = callbackURL,
-			   let components = URLComponents(string: callbackURL.absoluteString),
-			   let code = components.queryItems?.first(where: { $0.name == "code" })?.value {
-				discordOAuthCode = code
-			}
+			session.presentationContextProvider = self
+			session.start()
 		}
-		
-		session.presentationContextProvider = self
-		session.start()
-		
-		return discordOAuthCode
 	}
 	
 	func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {

@@ -5,7 +5,7 @@
 //  Created by Muhammad Akbar Reishandy on 01/05/26.
 //
 
-nonisolated struct ResponseFetch<T: Decodable>: Decodable {
+nonisolated struct ResponseFetch<T: APIResponse>: Decodable, APIResponse {
 	let items: [T]
 	let pageNumber: Int
 	let totalPages: Int
@@ -14,4 +14,6 @@ nonisolated struct ResponseFetch<T: Decodable>: Decodable {
 	let defaultPageSize: Int
 	let hasPreviousPage: Bool
 	let hasNextPage: Bool
+	
+	static var path: APIPath { T.path }
 }
