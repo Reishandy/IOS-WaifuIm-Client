@@ -47,6 +47,6 @@ nonisolated struct ResponseImage: Decodable, Identifiable, Equatable {
 		favorites: 143,
 		likedAt: nil,
 		addedToAlbumAt: nil,
-		albums: []
+		albums: [ResponseAlbum.mocks.first!]
 	)
 }

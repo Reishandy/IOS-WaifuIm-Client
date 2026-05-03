@@ -9,6 +9,8 @@ import SwiftUI
 
 struct ImageDetailScreen: View {
 	@Namespace private var imageDetailScreenNameSpace
+	
+	@Environment(AppManager.self) private var appManager
 	@Environment(\.dismiss) var dismiss
 	
 	let imageResponse: ResponseImage
@@ -143,24 +145,26 @@ struct ImageDetailScreen: View {
 				}
 			}
 			
-			ToolbarItem(placement: .bottomBar) {
-				Button {
-					isAlbumSheetPresented = true
-				} label: {
-					Image(systemName: "folder.badge.plus")
-						.padding(.leading, 6)
+			if let fetchedAlbumResponses = appManager.fetchedAlbumResponses {
+				ToolbarItem(placement: .bottomBar) {
+					Button {
+						isAlbumSheetPresented = true
+					} label: {
+						Image(systemName: "folder.badge.plus")
+							.padding(.leading, 6)
+					}
+					.matchedTransitionSource(id: "albumSheetSource", in: imageDetailScreenNameSpace)
 				}
-				.matchedTransitionSource(id: "albumSheetSource", in: imageDetailScreenNameSpace)
-			}
-			
-			ToolbarItem(placement: .bottomBar) {
-				// TODO: Favorites
-				Button {
-					
-				} label: {
-					Image(systemName: "heart")
-						.padding(.leading, -6)
-						.padding(.trailing, 4)
+				
+				ToolbarItem(placement: .bottomBar) {
+					// TODO: Favorites
+					Button {
+						
+					} label: {
+						Image(systemName: "heart")
+							.padding(.leading, -6)
+							.padding(.trailing, 4)
+					}
 				}
 			}
 			
@@ -211,5 +215,6 @@ struct ImageDetailScreen: View {
 			onTagTap: {	_ in },
 			onArtistTap: { _ in }
 		)
+		.environment(AppManager())
 	}
 }
