@@ -9,6 +9,7 @@ import SwiftUI
 
 struct AlbumScreen: View {
 	@Environment(AppManager.self) private var appManager
+	@Environment(\.dismiss) var dismiss
 	
 	@State private var searchText = ""
 	@State private var isFormPresented: Bool = false
@@ -25,6 +26,8 @@ struct AlbumScreen: View {
 	}
 	
 	var body: some View {
+		@Bindable var appManager = appManager
+		
 		ScrollView {
 			LazyVStack {
 				ForEach(filteredAlbums) { album in
@@ -72,6 +75,19 @@ struct AlbumScreen: View {
 				}
 			}
 		}
+		.alert(
+			"Oops!",
+			isPresented: $appManager.showError,
+			presenting: appManager.error
+		) { _ in
+			Button("OK", role: .cancel) {
+				dismiss()
+			}
+		} message: { error in
+			Text(error.localizedDescription)
+		}
+		.animation(.easeInOut, value: appManager.imageResponses)
+		.animation(.easeInOut, value: appManager.albumResponses != nil)
 		.animation(.spring, value: filteredAlbums)
 	}
 }
