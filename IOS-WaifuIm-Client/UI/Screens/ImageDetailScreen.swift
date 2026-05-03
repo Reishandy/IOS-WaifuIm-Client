@@ -20,7 +20,6 @@ struct ImageDetailScreen: View {
 	@State private var shouldHideToolbars: Bool = false
 	@State private var isInfoSheetPresented: Bool = false
 	@State private var isAlbumSheetPresented: Bool = false
-	@State private var currentAlbumSheetDetent: PresentationDetent = .medium
 	@State private var currentZoom: CGFloat = 0.0
 	@State private var totalZoom: CGFloat = 1.0
 	@State private var currentOffset: CGSize = .zero
@@ -202,7 +201,7 @@ struct ImageDetailScreen: View {
 		}
 		.sheet(isPresented: $isAlbumSheetPresented) {
 			AlbumSheetView()
-				.presentationDetents([.medium, .large], selection: $currentAlbumSheetDetent)
+				.presentationDetents([.medium])
 				.navigationTransition(.zoom(sourceID: "albumSheetSource", in: imageDetailScreenNameSpace))
 		}
 	}

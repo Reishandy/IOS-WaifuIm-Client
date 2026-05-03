@@ -9,10 +9,11 @@ import SwiftUI
 
 struct AlbumCardView: View {
 	let responseAlbum: ResponseAlbum
-	let onEditTap: (String) -> Void
+	let onEditTap: (String, String, String) -> Void
 	let onDeleteTap: (String) -> Void
 	
 	@State private var isConfirmaionPresented: Bool = false
+	@State private var isFormPresented: Bool = false
 	
 	var body: some View {
 		VStack(alignment: .leading, spacing: 12) {
@@ -25,7 +26,7 @@ struct AlbumCardView: View {
 				
 				if !responseAlbum.isDefault {
 					Button {
-						onEditTap(String(responseAlbum.id))
+						isFormPresented = true
 					} label: {
 						Image(systemName: "pencil")
 							.font(.title2)
@@ -34,6 +35,16 @@ struct AlbumCardView: View {
 							.padding(.vertical, 8)
 							.background(Color(uiColor: .tertiarySystemFill))
 							.clipShape(RoundedRectangle(cornerRadius: 8))
+					}
+					.popover(isPresented: $isFormPresented) {
+						AlbumFormView(
+							name: responseAlbum.name,
+							description: responseAlbum.description,
+							onSaveTap: { name, description in
+								onEditTap(String(responseAlbum.id), name, description)
+							}
+						)
+						.presentationCompactAdaptation(.popover)
 					}
 					
 					
@@ -85,8 +96,8 @@ struct AlbumCardView: View {
 
 #Preview {
 	AlbumCardView(
-		responseAlbum: ResponseAlbum.mocks.first!,
-		onEditTap: { _ in },
+		responseAlbum: ResponseAlbum.mocks.last!,
+		onEditTap: { _, _, _ in },
 		onDeleteTap: { _ in }
 	)
 }

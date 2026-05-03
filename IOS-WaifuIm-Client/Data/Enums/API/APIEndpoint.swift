@@ -9,8 +9,11 @@ nonisolated enum APIEndpoint<Response: Decodable> {
 	case images
 	case tags
 	case artists
-	case albums(userId: Int)
 	case profile
+	case albums(userId: Int)
+	case albumCreate(userId: Int)
+	case albumUpdate(userId: Int, albumId: Int)
+	case albumDelete(userId: Int, albumId: Int)
 	
 	var value: (method: APIMethod, path: String) {
 		switch self {
@@ -18,7 +21,10 @@ nonisolated enum APIEndpoint<Response: Decodable> {
 		case .tags: return (.get, "tags")
 		case .artists: return (.get, "artists")
 		case .profile: return (.get, "users/me")
-		case .albums(let id): return (.get, "users/\(id)/albums")
+		case .albums(let userId): return (.get, "users/\(userId)/albums")
+		case .albumCreate(let userId): return (.post, "users/\(userId)/albums")
+		case .albumUpdate(let userId, let albumId): return (.patch, "users/\(userId)/albums/\(albumId)")
+		case .albumDelete(let userId, let albumId): return (.delete, "users/\(userId)/albums/\(albumId)")
 		}
 	}
 }

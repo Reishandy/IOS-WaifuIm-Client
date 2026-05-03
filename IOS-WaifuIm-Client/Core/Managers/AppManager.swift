@@ -27,7 +27,11 @@ class AppManager {
 	private let apiKeyAccessor: String = "api_key"
 	private let apiService: APIService = APIService()
 	
-	init() {
+	init(apiKeyOveride: String? = nil) {
+		if let apiKeyOveride = apiKeyOveride {
+			keychain[self.apiKeyAccessor] = apiKeyOveride
+		}
+		
 		Task {
 			let apiKey = keychain[self.apiKeyAccessor]
 			
