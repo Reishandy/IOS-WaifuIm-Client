@@ -17,7 +17,7 @@ class AppManager {
 	var albumResponses: [ResponseAlbum]? = nil
 	var profile: ResponseProfile? = nil
 	
-	var isFetchingImages: Bool = false
+	var isFetchingImages: Bool = true
 	var isFetchingImagasAlbum: Bool = false
 	var filterState: FilterState = FilterState.defultFilter
 	var error: APIError? = nil
@@ -53,8 +53,6 @@ class AppManager {
 	}
 	
 	func fetchImages() async {
-		guard !isFetchingImages else { return }
-		
 		self.isFetchingImages = true
 		
 		await self.doApiRequest {

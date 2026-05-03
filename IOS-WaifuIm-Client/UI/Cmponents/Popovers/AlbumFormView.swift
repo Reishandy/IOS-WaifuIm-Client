@@ -27,6 +27,31 @@ struct AlbumFormView: View {
 	
     var body: some View {
 		VStack(spacing: 20) {
+			HStack {
+				Button {
+					dismiss()
+				} label: {
+					Text("Cancel")
+						.frame(width: 80)
+				}
+				.buttonStyle(.glass)
+				
+				Spacer()
+				
+				Button {
+					if !nameInput.isEmpty {
+						dismiss()
+						onSaveTap(nameInput, descriptionInput)
+						nameInput = ""
+						descriptionInput = ""
+					}
+				} label: {
+					Text("Save")
+						.frame(width: 80)
+				}
+				.buttonStyle(.glassProminent)
+			}
+			
 			VStack(alignment: .leading, spacing: 12) {
 				Text("Name")
 					.font(.headline)
@@ -45,41 +70,19 @@ struct AlbumFormView: View {
 					.foregroundStyle(.secondary)
 				
 				TextField("Album Description...", text: $descriptionInput, axis: .vertical)
-					.lineLimit(3...10)
+					.lineLimit(8...8)
 					.padding(.horizontal, 12)
 					.padding(.vertical, 8)
 					.background(Color(uiColor: .tertiarySystemFill))
 					.clipShape(RoundedRectangle(cornerRadius: 8))
 			}
 			
-			HStack {
-				Button {
-					dismiss()
-				} label: {
-					Text("Cancel")
-						.frame(maxWidth: .infinity)
-				}
-				.buttonStyle(.glass)
-				
-				Button {
-					dismiss()
-					onSaveTap(nameInput, descriptionInput)
-					nameInput = ""
-					descriptionInput = ""
-				} label: {
-					Text("Save")
-						.frame(maxWidth: .infinity)
-				}
-				.buttonStyle(.glassProminent)
-			}
+			Spacer()
 		}
-		.padding(.horizontal, 30)
-		.padding(.vertical, 10)
-		.frame(width: 400, height: 300)
+		.padding(20)
     }
 }
 
 #Preview {
 	AlbumFormView(onSaveTap: { _, _ in })
-		.border(.blue)
 }

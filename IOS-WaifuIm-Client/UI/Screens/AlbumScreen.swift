@@ -12,7 +12,7 @@ struct AlbumScreen: View {
 	@Environment(\.dismiss) var dismiss
 	
 	@State private var searchText = ""
-	@State private var isFormPresented: Bool = false
+	@State private var formContext: AlbumFormContext? = nil
 	
 	private var filteredAlbums: [ResponseAlbum] {
 		if searchText.isEmpty {
@@ -37,13 +37,11 @@ struct AlbumScreen: View {
 						AlbumCardView(
 							responseAlbum: album,
 							onEditTap: { albumId, name, description in
-								Task {
-									await appManager.updateAlbum(
-										albumId: albumId,
-										name: name,
-										description: description
-									)
-								}
+								formContext = AlbumFormContext(
+									editId: albumId,
+									name: name,
+									description: description
+								)
 							},
 							onDeleteTap: { albumId in
 								Task {
@@ -67,21 +65,33 @@ struct AlbumScreen: View {
 		.toolbar {
 			ToolbarItem(placement: .topBarTrailing) {
 				Button {
-					isFormPresented = true
+					formContext = AlbumFormContext(editId: nil, name: "", description: "")
 				} label: {
 					Image(systemName: "plus")
 				}
-				.popover(isPresented: $isFormPresented) {
-					AlbumFormView(
-						onSaveTap: { name, description in
-							Task {
-								await appManager.createAlbum(name: name, description: description)
-							}
-						}
-					)
-					.presentationCompactAdaptation(.popover)
-				}
 			}
+		}
+		.sheet(item: $formContext) { context in
+			AlbumFormView(
+				name: context.name,
+				description: context.description,
+				onSaveTap: { name, description in
+					Task {
+						if let id = context.editId {
+							await appManager.updateAlbum(
+								albumId: id,
+								name: name,
+								description: description
+							)
+						} else {
+							await appManager.createAlbum(name: name, description: description)
+						}
+						
+						formContext = nil
+					}
+				}
+			)
+			.presentationDetents([.medium])
 		}
 		.alert(
 			"Oops!",

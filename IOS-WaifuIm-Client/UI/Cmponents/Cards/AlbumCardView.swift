@@ -15,7 +15,6 @@ struct AlbumCardView: View {
 	var showImageCount: Bool = true
 	
 	@State private var isConfirmaionPresented: Bool = false
-	@State private var isFormPresented: Bool = false
 	
 	var body: some View {
 		VStack(alignment: .leading, spacing: 6) {
@@ -50,7 +49,7 @@ struct AlbumCardView: View {
 				if !responseAlbum.isDefault {
 					if let onEditTap = onEditTap {
 						Button {
-							isFormPresented = true
+							onEditTap(responseAlbum.id, responseAlbum.name, responseAlbum.description)
 						} label: {
 							Image(systemName: "pencil")
 								.font(.title2)
@@ -59,16 +58,6 @@ struct AlbumCardView: View {
 								.padding(.vertical, 8)
 								.background(Color(uiColor: .tertiarySystemFill))
 								.clipShape(RoundedRectangle(cornerRadius: 8))
-						}
-						.popover(isPresented: $isFormPresented) {
-							AlbumFormView(
-								name: responseAlbum.name,
-								description: responseAlbum.description,
-								onSaveTap: { name, description in
-									onEditTap(responseAlbum.id, name, description)
-								}
-							)
-							.presentationCompactAdaptation(.popover)
 						}
 					}
 					
