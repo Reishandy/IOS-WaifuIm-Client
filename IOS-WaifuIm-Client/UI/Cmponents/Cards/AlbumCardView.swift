@@ -9,8 +9,8 @@ import SwiftUI
 
 struct AlbumCardView: View {
 	let responseAlbum: ResponseAlbum
-	let onEditTap: (String, String, String) -> Void
-	let onDeleteTap: (String) -> Void
+	let onEditTap: (Int, String, String) -> Void
+	let onDeleteTap: (Int) -> Void
 	
 	@State private var isConfirmaionPresented: Bool = false
 	@State private var isFormPresented: Bool = false
@@ -41,7 +41,7 @@ struct AlbumCardView: View {
 							name: responseAlbum.name,
 							description: responseAlbum.description,
 							onSaveTap: { name, description in
-								onEditTap(String(responseAlbum.id), name, description)
+								onEditTap(responseAlbum.id, name, description)
 							}
 						)
 						.presentationCompactAdaptation(.popover)
@@ -63,7 +63,7 @@ struct AlbumCardView: View {
 						isPresented: $isConfirmaionPresented
 					) {
 						Button("Delete", role: .destructive) {
-							onDeleteTap(String(responseAlbum.id))
+							onDeleteTap(responseAlbum.id)
 						}
 						.buttonStyle(.bordered)
 					} message: {

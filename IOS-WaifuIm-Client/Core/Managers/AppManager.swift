@@ -11,10 +11,10 @@ import KeychainAccess
 @MainActor
 @Observable
 class AppManager {
-	var fetchedImageResponses: [ResponseImage] = []
-	var fetchedTagResponses: [ResponseTag] = []
-	var fetchedArtistResponses: [ResponseArtist] = []
-	var fetchedAlbumResponses: [ResponseAlbum]? = nil
+	var imageResponses: [ResponseImage] = []
+	var tagResponses: [ResponseTag] = []
+	var artistResponses: [ResponseArtist] = []
+	var albumResponses: [ResponseAlbum]? = nil
 	var profile: ResponseProfile? = nil
 	
 	var isFetchingImages: Bool = false
@@ -27,11 +27,7 @@ class AppManager {
 	private let apiKeyAccessor: String = "api_key"
 	private let apiService: APIService = APIService()
 	
-	init(apiKeyOveride: String? = nil) {
-		if let apiKeyOveride = apiKeyOveride {
-			keychain[self.apiKeyAccessor] = apiKeyOveride
-		}
-		
+	init() {
 		Task {
 			let apiKey = keychain[self.apiKeyAccessor]
 			
@@ -45,10 +41,10 @@ class AppManager {
 			
 			await self.doApiRequest {
 				let artistResponse: ResponseFetch<ResponseArtist> = try await self.apiService.callAPI(.artists, apiKey: apiKey)
-				fetchedArtistResponses = artistResponse.items
+				artistResponses = artistResponse.items
 				
 				let tagResponse: ResponseFetch<ResponseTag> = try await self.apiService.callAPI(.tags, apiKey: apiKey)
-				fetchedTagResponses = tagResponse.items
+				tagResponses = tagResponse.items
 			}
 			
 			await self.fetchAlbums()
@@ -66,7 +62,7 @@ class AppManager {
 			self.hasMoreImage = response.hasNextPage
 			
 			for item in response.items {
-				fetchedImageResponses.append(item)
+				imageResponses.append(item)
 			}
 		}
 		
@@ -74,12 +70,66 @@ class AppManager {
 	}
 	
 	func fetchAlbums() async {
-		guard let id = self.profile?.id else { return }
+		guard let userId = self.profile?.id else { return }
 		
 		await self.doApiRequest {
-			let albumResponse: ResponseFetch<ResponseAlbum> = try await self.apiService.callAPI(.albums(userId: id), apiKey: self.keychain[self.apiKeyAccessor])
+			let albumResponse: ResponseFetch<ResponseAlbum> = try await self.apiService.callAPI(
+				.albums(userId: userId),
+				apiKey: self.keychain[self.apiKeyAccessor]
+			)
 			
-			self.fetchedAlbumResponses = albumResponse.items
+			self.albumResponses = albumResponse.items
+		}
+	}
+	
+	func createAlbum(name: String, description: String) async {
+		guard let userId = self.profile?.id else { return }
+		
+		let body = BodyAlbum(
+			name: name, description: description
+		)
+		
+		await self.doApiRequest {
+			let albumResponse: ResponseAlbum = try await self.apiService.callAPI(
+				.albumCreate(userId: userId),
+				body: body,
+				apiKey: self.keychain[self.apiKeyAccessor]
+			)
+			
+			self.albumResponses?.append(albumResponse)
+		}
+	}
+	
+	func updateAlbum(albumId: Int, name: String, description: String) async {
+		guard let userId = self.profile?.id else { return }
+		
+		let body = BodyAlbum(
+			name: name, description: description
+		)
+		
+		await self.doApiRequest {
+			let albumResponse: ResponseAlbum = try await self.apiService.callAPI(
+				.albumUpdate(userId: userId, albumId: albumId),
+				body: body,
+				apiKey: self.keychain[self.apiKeyAccessor]
+			)
+			
+			if let index = self.albumResponses?.firstIndex(where: { $0.id == albumResponse.id }) {
+				self.albumResponses?[index] = albumResponse
+			}
+		}
+	}
+	
+	func deleteAlbum(albumId: Int) async {
+		guard let userId = self.profile?.id else { return }
+		
+		await self.doApiRequest {
+			let _: ResponseEmpty = try await self.apiService.callAPI(
+				.albumDelete(userId: userId, albumId: albumId),
+				apiKey: self.keychain[self.apiKeyAccessor]
+			)
+			
+			self.albumResponses?.removeAll { $0.id == albumId }
 		}
 	}
 	
@@ -98,7 +148,7 @@ class AppManager {
 	func removeAPIKey() {
 		self.keychain["api_key"] = nil
 		self.profile = nil
-		self.fetchedAlbumResponses = nil
+		self.albumResponses = nil
 	}
 	
 	private func doApiRequest(action: () async throws -> Void) async {

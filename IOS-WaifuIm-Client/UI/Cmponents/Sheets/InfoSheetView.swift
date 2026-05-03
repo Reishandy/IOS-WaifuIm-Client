@@ -19,13 +19,13 @@ struct InfoSheetView: View {
 	private var realTags: [ResponseTag] {
 		let targetTagIds = Set(imageResponse.tags.map { $0.id })
 		
-		return appManager.fetchedTagResponses.filter { targetTagIds.contains($0.id) }
+		return appManager.tagResponses.filter { targetTagIds.contains($0.id) }
 	}
 	
 	private var realArtists: [ResponseArtist] {
 		let targetArtistIds = Set(imageResponse.artists.map { $0.id })
 		
-		return appManager.fetchedArtistResponses.filter { targetArtistIds.contains($0.id) }
+		return appManager.artistResponses.filter { targetArtistIds.contains($0.id) }
 	}
 	
 	var body: some View {

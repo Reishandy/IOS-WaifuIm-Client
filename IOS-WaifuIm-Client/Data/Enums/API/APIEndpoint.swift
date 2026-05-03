@@ -21,10 +21,10 @@ nonisolated enum APIEndpoint<Response: Decodable> {
 		case .tags: return (.get, "tags")
 		case .artists: return (.get, "artists")
 		case .profile: return (.get, "users/me")
-		case .albums(let userId): return (.get, "users/\(userId)/albums")
-		case .albumCreate(let userId): return (.post, "users/\(userId)/albums")
-		case .albumUpdate(let userId, let albumId): return (.patch, "users/\(userId)/albums/\(albumId)")
-		case .albumDelete(let userId, let albumId): return (.delete, "users/\(userId)/albums/\(albumId)")
+		case .albums(let userId): return (.get, "users/\(String(userId))/albums")
+		case .albumCreate(let userId): return (.post, "users/\(String(userId))/albums")
+		case .albumUpdate(let userId, let albumId): return (.patch, "users/\(String(userId))/albums/\(String(albumId))")
+		case .albumDelete(let userId, let albumId): return (.delete, "users/\(String(userId))/albums/\(String(albumId))")
 		}
 	}
 }

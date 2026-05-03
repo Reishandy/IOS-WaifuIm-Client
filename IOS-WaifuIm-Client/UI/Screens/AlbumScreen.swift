@@ -15,9 +15,9 @@ struct AlbumScreen: View {
 	
 	private var filteredAlbums: [ResponseAlbum] {
 		if searchText.isEmpty {
-			return appManager.fetchedAlbumResponses ?? []
+			return appManager.albumResponses ?? []
 		} else {
-			return appManager.fetchedAlbumResponses?.filter { album in
+			return appManager.albumResponses?.filter { album in
 				album.name.localizedCaseInsensitiveContains(searchText) ||
 				album.description.localizedCaseInsensitiveContains(searchText)
 			} ?? []
@@ -30,8 +30,20 @@ struct AlbumScreen: View {
 				ForEach(filteredAlbums) { album in
 					AlbumCardView(
 						responseAlbum: album,
-						onEditTap: { id, name, description in },
-						onDeleteTap: { id in }
+						onEditTap: { albumId, name, description in
+							Task {
+								await appManager.updateAlbum(
+									albumId: albumId,
+									name: name,
+									description: description
+								)
+							}
+						},
+						onDeleteTap: { albumId in
+							Task {
+								await appManager.deleteAlbum(albumId: albumId)
+							}
+						}
 					)
 					.transition(.scale(0.8).combined(with: .opacity))
 				}
@@ -51,7 +63,9 @@ struct AlbumScreen: View {
 				.popover(isPresented: $isFormPresented) {
 					AlbumFormView(
 						onSaveTap: { name, description in
-							
+							Task {
+								await appManager.createAlbum(name: name, description: description)
+							}
 						}
 					)
 					.presentationCompactAdaptation(.popover)
@@ -65,7 +79,6 @@ struct AlbumScreen: View {
 #Preview {
 	NavigationStack {
 		AlbumScreen()
-			.environment(AppManager(apiKeyOveride: "RAm73yKiIHK04nzjlpwuuojgIxVA6NfILYimEi1kc"))
+			.environment(AppManager())
 	}
-	// TODO: Remove this with the apiKeyOveride too
 }

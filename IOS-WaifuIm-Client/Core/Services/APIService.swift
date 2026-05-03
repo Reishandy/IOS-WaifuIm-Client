@@ -42,6 +42,14 @@ actor APIService {
 			}
 			
 			if (200...299).contains(httpResponse.statusCode) {
+				if T.self == ResponseEmpty.self {
+					return ResponseEmpty() as! T
+				}
+				
+				if data.isEmpty {
+					throw APIError.decodingError
+				}
+				
 				return try JSONDecoder().decode(T.self, from: data)
 			}
 			

@@ -17,9 +17,9 @@ struct ArtistScreen: View {
 	
 	private var filteredArtists: [ResponseArtist] {
 		if searchText.isEmpty {
-			return appManager.fetchedArtistResponses
+			return appManager.artistResponses
 		} else {
-			return appManager.fetchedArtistResponses.filter { artist in
+			return appManager.artistResponses.filter { artist in
 				artist.name.localizedCaseInsensitiveContains(searchText)
 			}
 		}

@@ -144,7 +144,7 @@ struct ImageDetailScreen: View {
 				}
 			}
 			
-			if let fetchedAlbumResponses = appManager.fetchedAlbumResponses {
+			if let fetchedAlbumResponses = appManager.albumResponses {
 				ToolbarItem(placement: .bottomBar) {
 					Button {
 						isAlbumSheetPresented = true

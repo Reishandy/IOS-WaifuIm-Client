@@ -86,7 +86,7 @@ struct FilterView: View {
 				
 				TokenFieldView(
 					fieldText: "Search tags...",
-					itemOptions: appManager.fetchedTagResponses,
+					itemOptions: appManager.tagResponses,
 					tokens: $filterState.includedTags,
 				)
 			}
@@ -98,7 +98,7 @@ struct FilterView: View {
 				
 				TokenFieldView(
 					fieldText: "Exclude tags...",
-					itemOptions: appManager.fetchedTagResponses,
+					itemOptions: appManager.tagResponses,
 					tokens: $filterState.excludedTags,
 				)
 			}
@@ -112,7 +112,7 @@ struct FilterView: View {
 				
 				TokenFieldView(
 					fieldText: "Search artists...",
-					itemOptions: appManager.fetchedArtistResponses,
+					itemOptions: appManager.artistResponses,
 					tokens: $filterState.includedArtists,
 				)
 			}
@@ -124,7 +124,7 @@ struct FilterView: View {
 				
 				TokenFieldView(
 					fieldText: "Exclude artists...",
-					itemOptions: appManager.fetchedArtistResponses,
+					itemOptions: appManager.artistResponses,
 					tokens: $filterState.excludedArtists,
 				)
 			}

@@ -29,7 +29,7 @@ struct ImageListScreen: View {
 			let screenWidth = geometry.size.width
 			
 			VStack {
-				if appManager.fetchedImageResponses.isEmpty {
+				if appManager.imageResponses.isEmpty {
 					if appManager.isFetchingImages {
 						ProgressView()
 					} else {
@@ -45,7 +45,7 @@ struct ImageListScreen: View {
 					}
 				} else {
 					ImageListView(
-						imageResponses: appManager.fetchedImageResponses,
+						imageResponses: appManager.imageResponses,
 						isLoading: appManager.isFetchingImages,
 						screenWidth: screenWidth,
 						isRandomOrder: isRandomOrder,
@@ -158,11 +158,11 @@ struct ImageListScreen: View {
 					)
 				) {
 					Image(systemName: "person.2")
-						.padding(.trailing, appManager.fetchedAlbumResponses != nil ? -16 : 8)
+						.padding(.trailing, appManager.albumResponses != nil ? -16 : 8)
 				}
 			}
 			
-			if appManager.fetchedAlbumResponses != nil {
+			if appManager.albumResponses != nil {
 				ToolbarItem(placement: .bottomBar) {
 					NavigationLink(
 						destination: AlbumScreen()
@@ -222,8 +222,8 @@ struct ImageListScreen: View {
 		} message: { error in
 			Text(error.localizedDescription)
 		}
-		.animation(.easeInOut, value: appManager.fetchedImageResponses)
-		.animation(.easeInOut, value: appManager.fetchedAlbumResponses != nil)
+		.animation(.easeInOut, value: appManager.imageResponses)
+		.animation(.easeInOut, value: appManager.albumResponses != nil)
 	}
 	
 	private func populate(isFresh: Bool = false) {
@@ -239,7 +239,7 @@ struct ImageListScreen: View {
 		if isFresh {
 			withAnimation() {
 				scrollPosition.scrollTo(edge: .top)
-				appManager.fetchedImageResponses = []
+				appManager.imageResponses = []
 				appManager.filterState.page = 1
 			}
 		} else {

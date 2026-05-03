@@ -17,9 +17,9 @@ struct TagsScreen: View {
 	
 	private var filteredTags: [ResponseTag] {
 		if searchText.isEmpty {
-			return appManager.fetchedTagResponses
+			return appManager.tagResponses
 		} else {
-			return appManager.fetchedTagResponses.filter { tag in
+			return appManager.tagResponses.filter { tag in
 				tag.name.localizedCaseInsensitiveContains(searchText) ||
 				tag.description.localizedCaseInsensitiveContains(searchText)
 			}
