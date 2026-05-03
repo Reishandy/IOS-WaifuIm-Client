@@ -38,7 +38,7 @@ struct ImageListView: View {
 					
 					NavigationLink(
 						destination: ImageDetailScreen(
-							imageResponse: item,
+							imageId: item.id,
 							onTagTap: {	slug in
 								appManager.filterState = FilterState.defultFilter
 								appManager.filterState.orderBy = .uploadedAt

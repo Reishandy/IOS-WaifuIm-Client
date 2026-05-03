@@ -13,6 +13,8 @@ struct InfoSheetView: View {
 	let imageResponse: ResponseImage
 	let onTagTap: (String) -> Void
 	let onArtistTap: (String) -> Void
+	let onFavoriteTap: () -> Void
+	let isFavorited: Bool
 	
 	@State private var isColorCopied: Bool = false
 	
@@ -38,14 +40,13 @@ struct InfoSheetView: View {
 					
 					Spacer()
 					
-					// TODO: Is favorited check and also favorited action
 					Button {
-						
+						onFavoriteTap()
 					} label: {
 						HStack(alignment: .center) {
-							Image(systemName: "heart")
+							Image(systemName: isFavorited ? "heart.fill" : "heart")
 								.font(.title)
-								.foregroundStyle(.primary)
+								.foregroundStyle(isFavorited ? .red : .primary)
 							
 							Text(String(imageResponse.favorites))
 								.font(.title3)
@@ -180,7 +181,9 @@ struct InfoSheetView: View {
 		InfoSheetView(
 			imageResponse: ResponseImage.mock,
 			onTagTap: {	_ in },
-			onArtistTap: { _ in }
+			onArtistTap: { _ in },
+			onFavoriteTap: {},
+			isFavorited: false
 		)
 		.presentationDetents([.medium])
 		.environment(AppManager())

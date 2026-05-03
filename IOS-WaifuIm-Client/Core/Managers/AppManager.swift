@@ -69,6 +69,16 @@ class AppManager {
 		self.isFetchingImages = false
 	}
 	
+	func fetchImage(imageId: Int) async -> ResponseImage? {
+		var imageResponse: ResponseImage? = nil
+		
+		await self.doApiRequest {
+			imageResponse = try await self.apiService.callAPI(.image(imageId: imageId), apiKey: self.keychain[self.apiKeyAccessor])
+		}
+		
+		return imageResponse
+	}
+	
 	func fetchAlbums() async {
 		guard let userId = self.profile?.id else { return }
 		
@@ -128,6 +138,17 @@ class AppManager {
 			)
 			
 			self.albumResponses?.removeAll { $0.id == albumId }
+		}
+	}
+	
+	func imageToAlbum(albumId: Int, imageId: Int, isDelete: Bool = false) async {
+		guard let userId = self.profile?.id else { return }
+		
+		await self.doApiRequest {
+			let _: ResponseEmpty = try await self.apiService.callAPI(
+				isDelete ? .deleteImageToAlbum(userId: userId, albumId: albumId, imageId: imageId) : .addImageToAlbum(userId: userId, albumId: albumId, imageId: imageId),
+				apiKey: self.keychain[self.apiKeyAccessor]
+			)
 		}
 	}
 	
