@@ -18,11 +18,25 @@ struct AlbumCardView: View {
 	@State private var isFormPresented: Bool = false
 	
 	var body: some View {
-		VStack(alignment: .leading, spacing: 12) {
+		VStack(alignment: .leading, spacing: 6) {
 			HStack(alignment: .center) {
-				Text(responseAlbum.name)
-					.font(.title)
-					.bold()
+				VStack(alignment: .leading) {
+					Text(responseAlbum.name)
+						.font(.title)
+						.bold()
+					
+					if showImageCount {
+						HStack {
+							Image(systemName: "photo")
+								.font(.subheadline)
+								.opacity(0.5)
+							
+							Text("\(responseAlbum.imageCount)")
+								.font(.subheadline)
+								.opacity(0.5)
+						}
+					}
+				}
 				
 				Spacer()
 				
@@ -81,18 +95,6 @@ struct AlbumCardView: View {
 							Text("Are you sure you want to delete this album?")
 						}
 					}
-				}
-			}
-			
-			if showImageCount {
-				HStack {
-					Image(systemName: "photo")
-						.font(.subheadline)
-						.opacity(0.5)
-					
-					Text("\(responseAlbum.imageCount)")
-						.font(.subheadline)
-						.opacity(0.5)
 				}
 			}
 			

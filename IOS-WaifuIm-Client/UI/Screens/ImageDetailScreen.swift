@@ -11,11 +11,9 @@ struct ImageDetailScreen: View {
 	@Namespace private var imageDetailScreenNameSpace
 	
 	@Environment(AppManager.self) private var appManager
-	@Environment(\.dismiss) var dismiss
+	@Environment(RouterManager.self) private var routerManager
 	
 	let imageId: Int
-	let onTagTap: (String) -> Void
-	let onArtistTap: (String) -> Void
 	
 	@State private var imageResponse: ResponseImage? = nil
 	@State private var shouldHideToolbars: Bool = false
@@ -223,15 +221,19 @@ struct ImageDetailScreen: View {
 					imageResponse: imageResponse,
 					onTagTap: { slug in
 						isInfoSheetPresented = false
-						dismiss()
+						routerManager.reset()
 						
-						onTagTap(slug)
+						Task {
+							await appManager.fetchOnlyTagOrArtist(slug: slug)
+						}
 					},
-					onArtistTap: { id in
+					onArtistTap: { artistId in
 						isInfoSheetPresented = false
-						dismiss()
+						routerManager.reset()
 						
-						onArtistTap(id)
+						Task {
+							await appManager.fetchOnlyTagOrArtist(artistId: artistId)
+						}
 					},
 					onFavoriteTap: {
 						favorite(albumId: favoritesAlbumId ?? -1)
@@ -274,11 +276,7 @@ struct ImageDetailScreen: View {
 
 #Preview {
 	NavigationStack {
-		ImageDetailScreen(
-			imageId: ResponseImage.mock.id,
-			onTagTap: {	_ in },
-			onArtistTap: { _ in }
-		)
+		ImageDetailScreen(imageId: ResponseImage.mock.id)
 		.environment(AppManager())
 	}
 }

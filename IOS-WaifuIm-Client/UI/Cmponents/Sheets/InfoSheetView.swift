@@ -12,7 +12,7 @@ struct InfoSheetView: View {
 	
 	let imageResponse: ResponseImage
 	let onTagTap: (String) -> Void
-	let onArtistTap: (String) -> Void
+	let onArtistTap: (Int) -> Void
 	let onFavoriteTap: () -> Void
 	let isFavorited: Bool
 	
@@ -156,7 +156,7 @@ struct InfoSheetView: View {
 						ForEach(realArtists) { artist in
 							ArtistCardView(responseArtist: artist)
 								.onTapGesture {
-									onArtistTap(String(artist.id))
+									onArtistTap(artist.id)
 								}
 						}
 					}

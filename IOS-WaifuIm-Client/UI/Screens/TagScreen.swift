@@ -1,5 +1,5 @@
 //
-//  TagsScreen.swift
+//  TagScreen.swift
 //  IOS-WaifuIm-Client
 //
 //  Created by Muhammad Akbar Reishandy on 30/04/26.
@@ -7,11 +7,9 @@
 
 import SwiftUI
 
-struct TagsScreen: View {
+struct TagScreen: View {
 	@Environment(AppManager.self) private var appManager
-	@Environment(\.dismiss) var dismiss
-	
-	let onTagTap: (String) -> Void
+	@Environment(RouterManager.self) private var routerManager
 	
 	@State private var searchText = ""
 	
@@ -32,8 +30,11 @@ struct TagsScreen: View {
 				ForEach(filteredTags) { tag in
 					TagCardView(responseTag: tag)
 						.onTapGesture {
-							dismiss()
-							onTagTap(tag.slug)
+							routerManager.reset()
+							
+							Task {
+								await appManager.fetchOnlyTagOrArtist(slug: tag.slug)
+							}
 						}
 						.transition(.scale(0.8).combined(with: .opacity))
 				}
@@ -49,7 +50,7 @@ struct TagsScreen: View {
 
 #Preview {
 	NavigationStack {
-		TagsScreen(onTagTap: { _ in })
+		TagScreen()
 			.environment(AppManager())
 	}
 }

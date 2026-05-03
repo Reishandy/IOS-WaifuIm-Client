@@ -15,8 +15,6 @@ struct ImageListView: View {
 	let isRandomOrder: Bool
 	let hasMoreImage: Bool
 	let populate: (Bool) -> Void
-	let onTagTap: (String) -> Void
-	let onArtistTap: (String) -> Void
 	
 	@Binding var shouldHideToolbars: Bool
 	@Binding var scrollPosition: ScrollPosition
@@ -41,15 +39,7 @@ struct ImageListView: View {
 						let displayHeight = (screenWidth / CGFloat(item.width)) * CGFloat(item.height)
 						
 						NavigationLink(
-							destination: ImageDetailScreen(
-								imageId: item.id,
-								onTagTap: {	slug in
-									onTagTap(slug)
-								},
-								onArtistTap: { artistId in
-									onArtistTap(artistId)
-								}
-							)
+							value: Screen.imageDetailScreen(imageId: item.id)
 						) {
 							ImageItemView(imageUrl: item.url)
 								.frame(height: displayHeight)
@@ -114,8 +104,6 @@ struct ImageListView: View {
 		isRandomOrder: false,
 		hasMoreImage: false,
 		populate: {_ in },
-		onTagTap: { _ in },
-		onArtistTap: { _ in },
 		shouldHideToolbars: .constant(false),
 		scrollPosition: .constant(ScrollPosition())
 	)

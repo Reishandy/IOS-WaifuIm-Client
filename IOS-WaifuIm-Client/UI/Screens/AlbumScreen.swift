@@ -31,24 +31,29 @@ struct AlbumScreen: View {
 		ScrollView {
 			LazyVStack {
 				ForEach(filteredAlbums) { album in
-					AlbumCardView(
-						responseAlbum: album,
-						onEditTap: { albumId, name, description in
-							Task {
-								await appManager.updateAlbum(
-									albumId: albumId,
-									name: name,
-									description: description
-								)
+					NavigationLink(
+						value: Screen.albumImageScreen(albumId: album.id)
+					) {
+						AlbumCardView(
+							responseAlbum: album,
+							onEditTap: { albumId, name, description in
+								Task {
+									await appManager.updateAlbum(
+										albumId: albumId,
+										name: name,
+										description: description
+									)
+								}
+							},
+							onDeleteTap: { albumId in
+								Task {
+									await appManager.deleteAlbum(albumId: albumId)
+								}
 							}
-						},
-						onDeleteTap: { albumId in
-							Task {
-								await appManager.deleteAlbum(albumId: albumId)
-							}
-						}
-					)
-					.transition(.scale(0.8).combined(with: .opacity))
+						)
+						.transition(.scale(0.8).combined(with: .opacity))
+					}
+					.buttonStyle(.plain)
 				}
 			}
 			.padding(10)

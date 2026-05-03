@@ -21,6 +21,7 @@ struct AccountView: View {
 				if let avatarUrl = profile.avatarUrl {
 					ImageItemView(imageUrl: avatarUrl)
 						.clipShape(RoundedRectangle(cornerRadius: 12))
+						.blur(radius: 5)
 				}
 				
 				VStack {
@@ -29,11 +30,9 @@ struct AccountView: View {
 					Text(profile.name)
 						.font(.title2)
 						.bold()
-						.foregroundStyle(.white)
 					
 					Text(profile.role)
 						.opacity(0.6)
-						.foregroundStyle(.white)
 					
 					Button {
 						isConfirmaionPresented = true
@@ -55,16 +54,6 @@ struct AccountView: View {
 					}
 				}
 				.padding()
-				.background(
-					LinearGradient(
-						stops: [
-							.init(color: .clear, location: 0),
-							.init(color: .black, location: 1.0)
-						],
-						startPoint: .top,
-						endPoint: .bottom
-					)
-				)
 			}
 			.frame(width: 200, height: 200)
 		} else {

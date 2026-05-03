@@ -18,6 +18,7 @@ class AppManager {
 	var profile: ResponseProfile? = nil
 	
 	var isFetchingImages: Bool = false
+	var isFetchingImagasAlbum: Bool = false
 	var filterState: FilterState = FilterState.defultFilter
 	var error: APIError? = nil
 	var showError: Bool = false
@@ -77,6 +78,43 @@ class AppManager {
 		}
 		
 		return imageResponse
+	}
+	
+	func fetchAlbumImages(albumId: Int, currentPage: Int) async -> (hasNextPage: Bool, imageResponses: [ResponseImage]) {
+		guard let userId = self.profile?.id else { return (false, []) }
+		
+		self.isFetchingImagasAlbum = true
+		
+		var albumImages: [ResponseImage] = []
+		var hasNextPage: Bool = false
+		
+		await self.doApiRequest {
+			let response: ResponseFetch<ResponseImage> = try await self.apiService.callAPI(
+				.albumImages(userId: userId, albumId: albumId),
+				apiKey: self.keychain[self.apiKeyAccessor],
+				filter: FilterState(
+					isNsfw: .all,
+					includedTags: [],
+					excludedTags: [],
+					includedArtists: [],
+					excludedArtists:[],
+					includedIds: [],
+					excludedIds: [],
+					isAnimated: .all,
+					orderBy: .addedToAlbum,
+					orientation: .all,
+					page: currentPage,
+					pageSize: 10
+				)
+			)
+			
+			albumImages = response.items
+			hasNextPage = response.hasNextPage
+		}
+		
+		self.isFetchingImagasAlbum = false
+		
+		return (hasNextPage, albumImages)
 	}
 	
 	func fetchAlbums() async {
@@ -150,6 +188,22 @@ class AppManager {
 				apiKey: self.keychain[self.apiKeyAccessor]
 			)
 		}
+	}
+	
+	func fetchOnlyTagOrArtist(slug: String? = nil, artistId: Int? = nil) async {
+		self.filterState = FilterState.defultFilter
+		self.filterState.orderBy = .uploadedAt
+		
+		if let slug = slug {
+			self.filterState.includedTags = [slug]
+		}
+		
+		if let artistId = artistId {
+			self.filterState.includedArtists = [String(artistId)]
+		}
+		
+		self.imageResponses = []
+		await self.fetchImages()
 	}
 	
 	func storeAPIKey(apiKey: String) async {

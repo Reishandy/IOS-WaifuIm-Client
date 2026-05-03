@@ -9,9 +9,7 @@ import SwiftUI
 
 struct ArtistScreen: View {
 	@Environment(AppManager.self) private var appManager
-	@Environment(\.dismiss) var dismiss
-	
-	let onArtistTap: (String) -> Void
+	@Environment(RouterManager.self) private var routerManager
 	
 	@State private var searchText = ""
 	
@@ -31,8 +29,11 @@ struct ArtistScreen: View {
 				ForEach(filteredArtists) { artist in
 					ArtistCardView(responseArtist: artist)
 						.onTapGesture {
-							dismiss()
-							onArtistTap(String(artist.id))
+							routerManager.reset()
+							
+							Task {
+								await appManager.fetchOnlyTagOrArtist(artistId: artist.id)
+							}
 						}
 						.transition(.scale(0.8).combined(with: .opacity))
 				}
@@ -48,7 +49,7 @@ struct ArtistScreen: View {
 
 #Preview {
 	NavigationStack {
-		ArtistScreen(onArtistTap: { _ in })
+		ArtistScreen()
 			.environment(AppManager())
 	}
 }

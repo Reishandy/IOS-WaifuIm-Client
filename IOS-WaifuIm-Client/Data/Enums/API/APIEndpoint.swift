@@ -12,6 +12,7 @@ nonisolated enum APIEndpoint<Response: Decodable> {
 	case artists
 	case profile
 	case albums(userId: Int)
+	case albumImages(userId: Int, albumId: Int)
 	case albumCreate(userId: Int)
 	case albumUpdate(userId: Int, albumId: Int)
 	case albumDelete(userId: Int, albumId: Int)
@@ -26,6 +27,7 @@ nonisolated enum APIEndpoint<Response: Decodable> {
 		case .artists: return (.get, "artists")
 		case .profile: return (.get, "users/me")
 		case .albums(let userId): return (.get, "users/\(String(userId))/albums")
+		case .albumImages(let userId, let albumId): return (.get, "users/\(String(userId))/albums/\(String(albumId))/images")
 		case .albumCreate(let userId): return (.post, "users/\(String(userId))/albums")
 		case .albumUpdate(let userId, let albumId): return (.patch, "users/\(String(userId))/albums/\(String(albumId))")
 		case .albumDelete(let userId, let albumId): return (.delete, "users/\(String(userId))/albums/\(String(albumId))")

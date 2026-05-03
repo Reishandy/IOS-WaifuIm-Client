@@ -25,7 +25,6 @@ struct ImageListScreen: View {
 	var body: some View {
 		@Bindable var appManager = appManager
 		
-		
 		VStack {
 			if appManager.imageResponses.isEmpty {
 				if appManager.isFetchingImages {
@@ -49,20 +48,6 @@ struct ImageListScreen: View {
 					hasMoreImage: appManager.hasMoreImage,
 					populate: { isFresh in
 						self.populate(isFresh: isFresh)
-					},
-					onTagTap: { slug in
-						appManager.filterState = FilterState.defultFilter
-						appManager.filterState.orderBy = .uploadedAt
-						appManager.filterState.includedTags = [slug]
-						
-						populate(isFresh: true)
-					},
-					onArtistTap: { artistId in
-						appManager.filterState = FilterState.defultFilter
-						appManager.filterState.orderBy = .uploadedAt
-						appManager.filterState.includedArtists = [artistId]
-						
-						populate(isFresh: true)
 					},
 					shouldHideToolbars: $shouldHideToolbars,
 					scrollPosition: $scrollPosition
@@ -139,15 +124,7 @@ struct ImageListScreen: View {
 			
 			ToolbarItem(placement: .bottomBar) {
 				NavigationLink(
-					destination: TagsScreen(
-						onTagTap: {	slug in
-							appManager.filterState = FilterState.defultFilter
-							appManager.filterState.orderBy = .uploadedAt
-							appManager.filterState.includedTags = [slug]
-							
-							populate(isFresh: true)
-						}
-					)
+					value: Screen.tagScreen
 				) {
 					Image(systemName: "tag")
 						.padding(.trailing, -40)
@@ -156,15 +133,7 @@ struct ImageListScreen: View {
 			
 			ToolbarItem(placement: .bottomBar) {
 				NavigationLink(
-					destination: ArtistScreen(
-						onArtistTap: { id in
-							appManager.filterState = FilterState.defultFilter
-							appManager.filterState.orderBy = .uploadedAt
-							appManager.filterState.includedArtists = [id]
-							
-							populate(isFresh: true)
-						}
-					)
+					value: Screen.artistScreen
 				) {
 					Image(systemName: "person.2")
 						.padding(.trailing, appManager.albumResponses != nil ? -16 : 8)
@@ -174,7 +143,7 @@ struct ImageListScreen: View {
 			if appManager.albumResponses != nil {
 				ToolbarItem(placement: .bottomBar) {
 					NavigationLink(
-						destination: AlbumScreen()
+						value: Screen.albumScreen
 					) {
 						Image(systemName: "folder")
 							.padding(.trailing, 10)
@@ -203,6 +172,11 @@ struct ImageListScreen: View {
 						shouldHideToolbars = false
 					}
 				}
+			}
+		}
+		.onChange(of: appManager.imageResponses.isEmpty) {
+			withAnimation() {
+				scrollPosition.scrollTo(edge: .top)
 			}
 		}
 		.sheet(isPresented: $isFilterSheetPresented) {
