@@ -85,7 +85,7 @@ struct AccountView: View {
 					onSaveTap(inputText)
 					inputText = ""
 				} label: {
-					Text("Save API Key")
+					Text("Log In")
 						.frame(maxWidth: .infinity)
 				}
 				.buttonStyle(.glassProminent)

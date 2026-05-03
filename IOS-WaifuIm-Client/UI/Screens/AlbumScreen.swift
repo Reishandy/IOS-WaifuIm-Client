@@ -53,6 +53,9 @@ struct AlbumScreen: View {
 			}
 			.padding(10)
 		}
+		.task {
+			await appManager.fetchAlbums()
+		}
 		.navigationTitle("All Albums")
 		.toolbarTitleDisplayMode(.inline)
 		.searchable(text: $searchText, placement: .toolbar, prompt: "Search albums...")
@@ -86,8 +89,6 @@ struct AlbumScreen: View {
 		} message: { error in
 			Text(error.localizedDescription)
 		}
-		.animation(.easeInOut, value: appManager.imageResponses)
-		.animation(.easeInOut, value: appManager.albumResponses != nil)
 		.animation(.spring, value: filteredAlbums)
 	}
 }

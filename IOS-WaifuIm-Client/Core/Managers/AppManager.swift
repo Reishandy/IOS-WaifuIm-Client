@@ -90,14 +90,14 @@ class AppManager {
 		)
 		
 		await self.doApiRequest {
-			let albumResponse: ResponseAlbum = try await self.apiService.callAPI(
+			let _: ResponseAlbum = try await self.apiService.callAPI(
 				.albumCreate(userId: userId),
 				body: body,
 				apiKey: self.keychain[self.apiKeyAccessor]
 			)
-			
-			self.albumResponses?.append(albumResponse)
 		}
+		
+		await self.fetchAlbums()
 	}
 	
 	func updateAlbum(albumId: Int, name: String, description: String) async {
@@ -108,16 +108,14 @@ class AppManager {
 		)
 		
 		await self.doApiRequest {
-			let albumResponse: ResponseAlbum = try await self.apiService.callAPI(
+			let _: ResponseAlbum = try await self.apiService.callAPI(
 				.albumUpdate(userId: userId, albumId: albumId),
 				body: body,
 				apiKey: self.keychain[self.apiKeyAccessor]
 			)
-			
-			if let index = self.albumResponses?.firstIndex(where: { $0.id == albumResponse.id }) {
-				self.albumResponses?[index] = albumResponse
-			}
 		}
+		
+		await self.fetchAlbums()
 	}
 	
 	func deleteAlbum(albumId: Int) async {
