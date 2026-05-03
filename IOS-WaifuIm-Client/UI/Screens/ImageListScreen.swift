@@ -12,7 +12,6 @@ struct ImageListScreen: View {
 	
 	@Environment(AppManager.self) private var appManager
 	
-	@State private var shouldHideToolbars: Bool = false
 	@State private var isFilterSheetPresented: Bool = false
 	@State private var isFetchingCooldown: Bool = false
 	@State private var scrollPosition: ScrollPosition = ScrollPosition()
@@ -49,7 +48,6 @@ struct ImageListScreen: View {
 					populate: { isFresh in
 						self.populate(isFresh: isFresh)
 					},
-					shouldHideToolbars: $shouldHideToolbars,
 					scrollPosition: $scrollPosition
 				)
 			}
@@ -161,17 +159,6 @@ struct ImageListScreen: View {
 					Image(systemName: "line.3.horizontal.decrease")
 				}
 				.matchedTransitionSource(id: "filterSheetSource", in: imageListScreenNameSpace)
-			}
-		}
-		.statusBarHidden(true)
-		.toolbarVisibility(shouldHideToolbars ? .hidden : .visible, for: .navigationBar, .bottomBar)
-		.onAppear {
-			DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-				if shouldHideToolbars {
-					withAnimation {
-						shouldHideToolbars = false
-					}
-				}
 			}
 		}
 		.onChange(of: appManager.imageResponses.isEmpty) {

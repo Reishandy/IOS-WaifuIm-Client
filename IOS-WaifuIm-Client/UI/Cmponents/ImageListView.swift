@@ -16,7 +16,6 @@ struct ImageListView: View {
 	let hasMoreImage: Bool
 	let populate: (Bool) -> Void
 	
-	@Binding var shouldHideToolbars: Bool
 	@Binding var scrollPosition: ScrollPosition
 	
 	private var bottomText: String {
@@ -61,31 +60,15 @@ struct ImageListView: View {
 				}
 			}
 			.scrollPosition($scrollPosition)
-			.onScrollGeometryChange(for: ScrollState.self) { geometry in
+			.onScrollGeometryChange(for: Bool.self) { geometry in
 				let contentHeight = geometry.contentSize.height
 				let containerHeight = geometry.containerSize.height
 				let currentOffset = geometry.contentOffset.y
 				
-				let reachedBottom = currentOffset + containerHeight >= contentHeight
-				
-				return ScrollState(offset: currentOffset, isAtBottom: reachedBottom)
+				return  currentOffset + containerHeight >= contentHeight
 			} action: { oldValue, newValue in
 				Task { @MainActor in
-					let isScrollingDown = newValue.offset > oldValue.offset
-					
-					if abs(newValue.offset - oldValue.offset) >= 40 {
-						if isScrollingDown && !shouldHideToolbars {
-							withAnimation() {
-								shouldHideToolbars = true
-							}
-						} else if !isScrollingDown && shouldHideToolbars {
-							withAnimation() {
-								shouldHideToolbars = false
-							}
-						}
-					}
-					
-					if newValue.isAtBottom && !oldValue.isAtBottom && !isRandomOrder {
+					if newValue && !oldValue && !isRandomOrder {
 						populate(false)
 					}
 				}
@@ -104,7 +87,6 @@ struct ImageListView: View {
 		isRandomOrder: false,
 		hasMoreImage: false,
 		populate: {_ in },
-		shouldHideToolbars: .constant(false),
 		scrollPosition: .constant(ScrollPosition())
 	)
 }

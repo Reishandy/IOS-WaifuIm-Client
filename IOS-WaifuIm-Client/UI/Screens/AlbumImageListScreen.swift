@@ -40,7 +40,6 @@ struct AlbumImageListScreen: View {
 					populate: { isFresh in
 						populate(isFresh: isFresh)
 					},
-					shouldHideToolbars: .constant(false),
 					scrollPosition: $scrollPosition
 				)
 			}
