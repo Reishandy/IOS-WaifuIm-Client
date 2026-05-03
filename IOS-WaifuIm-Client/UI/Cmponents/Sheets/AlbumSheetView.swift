@@ -51,7 +51,7 @@ struct AlbumSheetView: View {
 						}
 					}
 				}
-				.padding(10)
+				.padding(.horizontal, 10)
 				.animation(.spring, value: albums)
 			}
 		}

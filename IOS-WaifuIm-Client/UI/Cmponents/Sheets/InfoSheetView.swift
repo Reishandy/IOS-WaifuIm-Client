@@ -47,6 +47,7 @@ struct InfoSheetView: View {
 							Image(systemName: isFavorited ? "heart.fill" : "heart")
 								.font(.title)
 								.foregroundStyle(isFavorited ? .red : .primary)
+								.contentTransition(.symbolEffect(.replace.magic(fallback: .downUp.wholeSymbol), options: .nonRepeating))
 							
 							Text(String(imageResponse.favorites))
 								.font(.title3)
@@ -164,6 +165,7 @@ struct InfoSheetView: View {
 			.padding(24)
 			.frame(maxWidth: .infinity, alignment: .leading)
 		}
+		.animation(.spring, value: isFavorited)
 	}
 }
 

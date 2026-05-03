@@ -182,6 +182,7 @@ struct ImageDetailScreen: View {
 						Image(systemName: imageIsFavorited ? "heart.fill" : "heart")
 							.foregroundStyle(imageIsFavorited ? .red : .primary)
 							.padding(.trailing, 4)
+							.contentTransition(.symbolEffect(.replace.magic(fallback: .downUp.wholeSymbol), options: .nonRepeating))
 					}
 				}
 			}
@@ -251,6 +252,7 @@ struct ImageDetailScreen: View {
 			.presentationDetents([.medium])
 			.navigationTransition(.zoom(sourceID: "albumSheetSource", in: imageDetailScreenNameSpace))
 		}
+		.animation(.spring, value: imageInAlbumsIds)
 	}
 	
 	private func populate() async {
