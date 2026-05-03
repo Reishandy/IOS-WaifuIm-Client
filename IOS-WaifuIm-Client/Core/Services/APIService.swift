@@ -8,26 +8,31 @@
 import Foundation
 
 actor APIService {
-	static let shared: APIService = APIService()
-	
 	private let apiUrl: String = "https://api.waifu.im/"
 	
-	func fetchData<T>(
+	func callAPI<T, Body: Encodable>(
 		_ endpoint: APIEndpoint<T>,
+		body: Body? = nil,
 		apiKey: String? = nil,
 		filter: FilterState? = nil
 	) async throws -> T {
-		guard let url = buildUrl(path: endpoint, filter: filter) else {
+		guard let url = buildUrl(endpoint, filter: filter) else {
 			throw APIError.invalidURL
 		}
 		
 		do {
 			var request = URLRequest(url: url)
 			
+			request.httpMethod = endpoint.value.method.rawValue
 			request.setValue("v7", forHTTPHeaderField: "Accept-Version")
 			
 			if let apiKey = apiKey {
 				request.setValue(apiKey, forHTTPHeaderField: "X-Api-Key")
+			}
+			
+			if let body = body {
+				request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+				request.httpBody = try JSONEncoder().encode(body)
 			}
 			
 			let (data, response) = try await URLSession.shared.data(for: request)
@@ -59,63 +64,17 @@ actor APIService {
 		}
 	}
 	
-	func postData<T, Body: Encodable>(
+	// Overoad if not using body
+	func callAPI<T>(
 		_ endpoint: APIEndpoint<T>,
-		body: Body? = nil,
 		apiKey: String? = nil,
 		filter: FilterState? = nil
 	) async throws -> T {
-		guard let url = buildUrl(path: endpoint, filter: filter) else {
-			throw APIError.invalidURL
-		}
-		
-		do {
-			var request = URLRequest(url: url)
-			
-			request.httpMethod = "POST"
-			
-			request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-			request.setValue("v7", forHTTPHeaderField: "Accept-Version")
-			
-			if let apiKey = apiKey {
-				request.setValue(apiKey, forHTTPHeaderField: "X-Api-Key")
-			}
-			
-			if let body = body {
-				request.httpBody = try JSONEncoder().encode(body)
-			}
-			
-			let (data, response) = try await URLSession.shared.data(for: request)
-			
-			guard let httpResponse = response as? HTTPURLResponse else {
-				throw APIError.serverError
-			}
-			
-			if (200...299).contains(httpResponse.statusCode) {
-				return try JSONDecoder().decode(T.self, from: data)
-			}
-			
-			if httpResponse.statusCode == 401 {
-				throw APIError.unauthorized
-			}
-			
-			if let errorResponse = try? JSONDecoder().decode(ResponseError.self, from: data) {
-				throw APIError.badRequest(errorResponse)
-			} else {
-				throw APIError.serverError
-			}
-		} catch let error as URLError where error.code == .notConnectedToInternet {
-			throw APIError.noNetwork
-		} catch let error as APIError {
-			throw error
-		} catch {
-			print("> Parsing/Encoding error: \(error)")
-			throw APIError.decodingError
-		}
+		try await callAPI(endpoint, body: nil as String?, apiKey: apiKey, filter: filter)
 	}
 	
-	private func buildUrl<T>(path: APIEndpoint<T>, filter: FilterState? = nil) -> URL? {
-		var urlString = self.apiUrl + path.path
+	private func buildUrl<T>(_ endpoint: APIEndpoint<T>, filter: FilterState? = nil) -> URL? {
+		var urlString = self.apiUrl + endpoint.value.path
 		
 		if let filter {
 			urlString += "?IsNsfw=\(filter.isNsfw.rawValue)&"
@@ -168,11 +127,11 @@ actor APIService {
 		}
 		
 		// Not a good thing to do really
-		if case .tags = path {
+		if case .tags = endpoint {
 			urlString += "?PageSize=9999"
-		} else if case .artists = path {
+		} else if case .artists = endpoint {
 			urlString += "?PageSize=9999"
-		} else if case .albums = path {
+		} else if case .albums = endpoint {
 			urlString += "?PageSize=9999"
 		}
 		

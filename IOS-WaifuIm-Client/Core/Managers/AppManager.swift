@@ -24,24 +24,26 @@ class AppManager {
 	var hasMoreImage: Bool = false
 	
 	private let keychain: Keychain = Keychain(service: "id.reishandy.waifuimios")
+	private let apiKeyAccessor: String = "api_key"
+	private let apiService: APIService = APIService()
 	
 	init() {
 		Task {
-			let apiKey = keychain["api_key"]
+			let apiKey = keychain[self.apiKeyAccessor]
 			
 			if let apiKey = apiKey {
 				await doApiRequest {
-					self.profile = try await APIService.shared.fetchData(.profile, apiKey: apiKey)
+					self.profile = try await self.apiService.callAPI(.profile, apiKey: apiKey)
 				}
 			}
 			
 			await self.fetchImages()
 			
 			await self.doApiRequest {
-				let artistResponse: ResponseFetch<ResponseArtist> = try await APIService.shared.fetchData(.artists, apiKey: apiKey)
+				let artistResponse: ResponseFetch<ResponseArtist> = try await self.apiService.callAPI(.artists, apiKey: apiKey)
 				fetchedArtistResponses = artistResponse.items
 				
-				let tagResponse: ResponseFetch<ResponseTag> = try await APIService.shared.fetchData(.tags, apiKey: apiKey)
+				let tagResponse: ResponseFetch<ResponseTag> = try await self.apiService.callAPI(.tags, apiKey: apiKey)
 				fetchedTagResponses = tagResponse.items
 			}
 			
@@ -55,7 +57,7 @@ class AppManager {
 		self.isFetchingImages = true
 		
 		await self.doApiRequest {
-			let response: ResponseFetch<ResponseImage> = try await APIService.shared.fetchData(.images, apiKey: self.keychain["api_key"], filter: self.filterState)
+			let response: ResponseFetch<ResponseImage> = try await self.apiService.callAPI(.images, apiKey: self.keychain[self.apiKeyAccessor], filter: self.filterState)
 			
 			self.hasMoreImage = response.hasNextPage
 			
@@ -71,7 +73,7 @@ class AppManager {
 		guard let id = self.profile?.id else { return }
 		
 		await self.doApiRequest {
-			let albumResponse: ResponseFetch<ResponseAlbum> = try await APIService.shared.fetchData(.albums(userId: id), apiKey: self.keychain["api_key"])
+			let albumResponse: ResponseFetch<ResponseAlbum> = try await self.apiService.callAPI(.albums(userId: id), apiKey: self.keychain[self.apiKeyAccessor])
 			
 			self.fetchedAlbumResponses = albumResponse.items
 		}
@@ -83,7 +85,7 @@ class AppManager {
 		self.keychain["api_key"] = apiKey
 		
 		await doApiRequest {
-			self.profile = try await APIService.shared.fetchData(.profile, apiKey: apiKey)
+			self.profile = try await self.apiService.callAPI(.profile, apiKey: apiKey)
 		}
 		
 		await self.fetchAlbums()

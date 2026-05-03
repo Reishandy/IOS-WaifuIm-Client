@@ -12,13 +12,13 @@ nonisolated enum APIEndpoint<Response: Decodable> {
 	case albums(userId: Int)
 	case profile
 	
-	var path: String {
+	var value: (method: APIMethod, path: String) {
 		switch self {
-		case .images: return "images"
-		case .tags: return "tags"
-		case .artists: return "artists"
-		case .profile: return "users/me"
-		case .albums(let id): return "users/\(id)/albums"
+		case .images: return (.get, "images")
+		case .tags: return (.get, "tags")
+		case .artists: return (.get, "artists")
+		case .profile: return (.get, "users/me")
+		case .albums(let id): return (.get, "users/\(id)/albums")
 		}
 	}
 }
