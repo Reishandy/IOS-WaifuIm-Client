@@ -9,8 +9,10 @@ import SwiftUI
 
 struct AlbumCardView: View {
 	let responseAlbum: ResponseAlbum
-	let onEditTap: (Int, String, String) -> Void
-	let onDeleteTap: (Int) -> Void
+	var onEditTap: ((Int, String, String) -> Void)? = nil
+	var onDeleteTap: ((Int) -> Void)? = nil
+	var isSelected: Bool = false
+	var showImageCount: Bool = true
 	
 	@State private var isConfirmaionPresented: Bool = false
 	@State private var isFormPresented: Bool = false
@@ -24,62 +26,74 @@ struct AlbumCardView: View {
 				
 				Spacer()
 				
+				if isSelected {
+					Image(systemName: "checkmark")
+						.font(.title2)
+						.foregroundStyle(.primary)
+						.transition(.scale(0.8).combined(with: .opacity))
+				}
+				
 				if !responseAlbum.isDefault {
-					Button {
-						isFormPresented = true
-					} label: {
-						Image(systemName: "pencil")
-							.font(.title2)
-							.tint(.gray)
-							.padding(.horizontal, 12)
-							.padding(.vertical, 8)
-							.background(Color(uiColor: .tertiarySystemFill))
-							.clipShape(RoundedRectangle(cornerRadius: 8))
-					}
-					.popover(isPresented: $isFormPresented) {
-						AlbumFormView(
-							name: responseAlbum.name,
-							description: responseAlbum.description,
-							onSaveTap: { name, description in
-								onEditTap(responseAlbum.id, name, description)
-							}
-						)
-						.presentationCompactAdaptation(.popover)
-					}
-					
-					
-					Button {
-						isConfirmaionPresented = true
-					} label: {
-						Image(systemName: "trash")
-							.tint(.red)
-							.padding(.horizontal, 12)
-							.padding(.vertical, 8)
-							.background(Color(uiColor: .tertiarySystemFill))
-							.clipShape(RoundedRectangle(cornerRadius: 8))
-					}
-					.confirmationDialog(
-						"Delete",
-						isPresented: $isConfirmaionPresented
-					) {
-						Button("Delete", role: .destructive) {
-							onDeleteTap(responseAlbum.id)
+					if let onEditTap = onEditTap {
+						Button {
+							isFormPresented = true
+						} label: {
+							Image(systemName: "pencil")
+								.font(.title2)
+								.foregroundStyle(.gray)
+								.padding(.horizontal, 12)
+								.padding(.vertical, 8)
+								.background(Color(uiColor: .tertiarySystemFill))
+								.clipShape(RoundedRectangle(cornerRadius: 8))
 						}
-						.buttonStyle(.bordered)
-					} message: {
-						Text("Are you sure you want to delete this album?")
+						.popover(isPresented: $isFormPresented) {
+							AlbumFormView(
+								name: responseAlbum.name,
+								description: responseAlbum.description,
+								onSaveTap: { name, description in
+									onEditTap(responseAlbum.id, name, description)
+								}
+							)
+							.presentationCompactAdaptation(.popover)
+						}
+					}
+					
+					if let onDeleteTap = onDeleteTap {
+						Button {
+							isConfirmaionPresented = true
+						} label: {
+							Image(systemName: "trash")
+								.foregroundStyle(.red)
+								.padding(.horizontal, 12)
+								.padding(.vertical, 8)
+								.background(Color(uiColor: .tertiarySystemFill))
+								.clipShape(RoundedRectangle(cornerRadius: 8))
+						}
+						.confirmationDialog(
+							"Delete",
+							isPresented: $isConfirmaionPresented
+						) {
+							Button("Delete", role: .destructive) {
+								onDeleteTap(responseAlbum.id)
+							}
+							.buttonStyle(.bordered)
+						} message: {
+							Text("Are you sure you want to delete this album?")
+						}
 					}
 				}
 			}
 			
-			HStack {
-				Image(systemName: "photo")
-					.font(.subheadline)
-					.opacity(0.5)
-				
-				Text("\(responseAlbum.imageCount)")
-					.font(.subheadline)
-					.opacity(0.5)
+			if showImageCount {
+				HStack {
+					Image(systemName: "photo")
+						.font(.subheadline)
+						.opacity(0.5)
+					
+					Text("\(responseAlbum.imageCount)")
+						.font(.subheadline)
+						.opacity(0.5)
+				}
 			}
 			
 			if !responseAlbum.description.isEmpty {
@@ -91,6 +105,7 @@ struct AlbumCardView: View {
 		.frame(maxWidth: .infinity, alignment: .leading)
 		.background(Color(uiColor: .tertiarySystemFill))
 		.clipShape(RoundedRectangle(cornerRadius: 8))
+		.animation(.spring, value: isSelected)
 	}
 }
 

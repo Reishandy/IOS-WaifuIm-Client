@@ -161,7 +161,7 @@ struct ImageDetailScreen: View {
 				}
 			}
 			
-			if let favoritesAlbumId = favoritesAlbumId, let imageResponse = imageResponse {
+			if let favoritesAlbumId = favoritesAlbumId {
 				ToolbarItem(placement: .bottomBar) {
 					Button {
 						isAlbumSheetPresented = true
@@ -177,15 +177,7 @@ struct ImageDetailScreen: View {
 					let imageIsFavorited = imageInAlbumsIds.contains(favoritesAlbumId)
 					
 					Button {
-						Task {
-							await appManager.imageToAlbum(
-								albumId: favoritesAlbumId,
-								imageId: imageResponse.id,
-								isDelete: imageIsFavorited
-							)
-							
-							await populate()
-						}
+						favorite(albumId: favoritesAlbumId)
 					} label: {
 						Image(systemName: imageIsFavorited ? "heart.fill" : "heart")
 							.foregroundStyle(imageIsFavorited ? .red : .primary)
@@ -241,17 +233,7 @@ struct ImageDetailScreen: View {
 						onArtistTap(id)
 					},
 					onFavoriteTap: {
-						if let favoritesAlbumId = favoritesAlbumId {
-							Task {
-								await appManager.imageToAlbum(
-									albumId: favoritesAlbumId,
-									imageId: imageResponse.id,
-									isDelete: imageInAlbumsIds.contains(favoritesAlbumId)
-								)
-								
-								await populate()
-							}
-						}
+						favorite(albumId: favoritesAlbumId ?? -1)
 					},
 					isFavorited: imageInAlbumsIds.contains(favoritesAlbumId ?? -1)
 				)
@@ -260,14 +242,31 @@ struct ImageDetailScreen: View {
 			}
 		}
 		.sheet(isPresented: $isAlbumSheetPresented) {
-			AlbumSheetView()
-				.presentationDetents([.medium])
-				.navigationTransition(.zoom(sourceID: "albumSheetSource", in: imageDetailScreenNameSpace))
+			AlbumSheetView(
+				imageInAlbumsIds: imageInAlbumsIds,
+				onAlbumTap: { albumId in
+					favorite(albumId: albumId)
+				}
+			)
+			.presentationDetents([.medium])
+			.navigationTransition(.zoom(sourceID: "albumSheetSource", in: imageDetailScreenNameSpace))
 		}
 	}
 	
 	private func populate() async {
 		self.imageResponse = await appManager.fetchImage(imageId: imageId)
+	}
+	
+	private func favorite(albumId: Int) {
+		Task {
+			await appManager.imageToAlbum(
+				albumId: albumId,
+				imageId: imageId,
+				isDelete: imageInAlbumsIds.contains(albumId)
+			)
+			
+			await populate()
+		}
 	}
 }
 
