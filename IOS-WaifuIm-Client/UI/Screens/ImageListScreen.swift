@@ -25,40 +25,49 @@ struct ImageListScreen: View {
 	var body: some View {
 		@Bindable var appManager = appManager
 		
-		GeometryReader { geometry in
-			let screenWidth = geometry.size.width
-			
-			VStack {
-				if appManager.imageResponses.isEmpty {
-					if appManager.isFetchingImages {
-						ProgressView()
-					} else {
-						EmptyStateView(
-							iconName: "photo.badge.magnifyingglass",
-							title: "No Images Here",
-							description: "Either it is empty, or you should check the filter (escpecially with the content rating).",
-							actionButtonText: "Reset Filter"
-						) {
-							appManager.filterState = FilterState.defultFilter
-							populate(isFresh: true)
-						}
-					}
+		
+		VStack {
+			if appManager.imageResponses.isEmpty {
+				if appManager.isFetchingImages {
+					ProgressView()
 				} else {
-					ImageListView(
-						imageResponses: appManager.imageResponses,
-						isLoading: appManager.isFetchingImages,
-						screenWidth: screenWidth,
-						isRandomOrder: isRandomOrder,
-						hasMoreImage: appManager.hasMoreImage,
-						populate: { isFresh in
-							self.populate(isFresh: isFresh)
-						},
-						shouldHideToolbars: $shouldHideToolbars,
-						scrollPosition: $scrollPosition
-					)
+					EmptyStateView(
+						iconName: "photo.badge.magnifyingglass",
+						title: "No Images Here",
+						description: "Either it is empty, or you should check the filter (escpecially with the content rating).",
+						actionButtonText: "Reset Filter"
+					) {
+						appManager.filterState = FilterState.defultFilter
+						populate(isFresh: true)
+					}
 				}
+			} else {
+				ImageListView(
+					imageResponses: appManager.imageResponses,
+					isLoading: appManager.isFetchingImages,
+					isRandomOrder: isRandomOrder,
+					hasMoreImage: appManager.hasMoreImage,
+					populate: { isFresh in
+						self.populate(isFresh: isFresh)
+					},
+					onTagTap: { slug in
+						appManager.filterState = FilterState.defultFilter
+						appManager.filterState.orderBy = .uploadedAt
+						appManager.filterState.includedTags = [slug]
+						
+						populate(isFresh: true)
+					},
+					onArtistTap: { artistId in
+						appManager.filterState = FilterState.defultFilter
+						appManager.filterState.orderBy = .uploadedAt
+						appManager.filterState.includedArtists = [artistId]
+						
+						populate(isFresh: true)
+					},
+					shouldHideToolbars: $shouldHideToolbars,
+					scrollPosition: $scrollPosition
+				)
 			}
-			.frame(maxWidth: .infinity, maxHeight: .infinity)
 		}
 		.frame(maxWidth: .infinity, maxHeight: .infinity)
 		.toolbar {
