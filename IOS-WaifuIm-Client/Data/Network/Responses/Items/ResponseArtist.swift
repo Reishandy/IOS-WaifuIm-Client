@@ -5,7 +5,7 @@
 //  Created by Muhammad Akbar Reishandy on 30/04/26.
 //
 
-nonisolated struct ResponseArtist: Decodable, Identifiable, Equatable, TokenDisplayable {
+nonisolated struct ResponseArtist: Decodable, Identifiable, Equatable, Hashable, TokenDisplayable {
 	let id: Int
 	let name: String
 	let patreon: String?

@@ -26,60 +26,62 @@ struct AlbumFormView: View {
 	}
 	
     var body: some View {
-		VStack(spacing: 20) {
-			HStack {
-				Button {
-					dismiss()
-				} label: {
-					Text("Cancel")
-						.frame(width: 80)
+		ScrollView {
+			VStack(spacing: 20) {
+				HStack {
+					Button {
+						dismiss()
+					} label: {
+						Text("Cancel")
+							.frame(width: 80)
+					}
+					.buttonStyle(.glass)
+					
+					Spacer()
+					
+					Button {
+						if !nameInput.isEmpty {
+							dismiss()
+							onSaveTap(nameInput, descriptionInput)
+							nameInput = ""
+							descriptionInput = ""
+						}
+					} label: {
+						Text("Save")
+							.frame(width: 80)
+					}
+					.buttonStyle(.glassProminent)
 				}
-				.buttonStyle(.glass)
+				
+				VStack(alignment: .leading, spacing: 12) {
+					Text("Name")
+						.font(.headline)
+						.foregroundStyle(.secondary)
+					
+					TextField("Album Name", text: $nameInput)
+						.padding(.horizontal, 12)
+						.padding(.vertical, 8)
+						.background(Color(uiColor: .tertiarySystemFill))
+						.clipShape(RoundedRectangle(cornerRadius: 8))
+				}
+				
+				VStack(alignment: .leading, spacing: 12) {
+					Text("Description")
+						.font(.headline)
+						.foregroundStyle(.secondary)
+					
+					TextField("Album Description...", text: $descriptionInput, axis: .vertical)
+						.lineLimit(5...10)
+						.padding(.horizontal, 12)
+						.padding(.vertical, 8)
+						.background(Color(uiColor: .tertiarySystemFill))
+						.clipShape(RoundedRectangle(cornerRadius: 8))
+				}
 				
 				Spacer()
-				
-				Button {
-					if !nameInput.isEmpty {
-						dismiss()
-						onSaveTap(nameInput, descriptionInput)
-						nameInput = ""
-						descriptionInput = ""
-					}
-				} label: {
-					Text("Save")
-						.frame(width: 80)
-				}
-				.buttonStyle(.glassProminent)
 			}
-			
-			VStack(alignment: .leading, spacing: 12) {
-				Text("Name")
-					.font(.headline)
-					.foregroundStyle(.secondary)
-				
-				TextField("Album Name", text: $nameInput)
-					.padding(.horizontal, 12)
-					.padding(.vertical, 8)
-					.background(Color(uiColor: .tertiarySystemFill))
-					.clipShape(RoundedRectangle(cornerRadius: 8))
-			}
-			
-			VStack(alignment: .leading, spacing: 12) {
-				Text("Description")
-					.font(.headline)
-					.foregroundStyle(.secondary)
-				
-				TextField("Album Description...", text: $descriptionInput, axis: .vertical)
-					.lineLimit(8...8)
-					.padding(.horizontal, 12)
-					.padding(.vertical, 8)
-					.background(Color(uiColor: .tertiarySystemFill))
-					.clipShape(RoundedRectangle(cornerRadius: 8))
-			}
-			
-			Spacer()
+			.padding(20)
 		}
-		.padding(20)
     }
 }
 

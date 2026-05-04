@@ -19,7 +19,7 @@ struct AccountView: View {
 		if let profile = profile {
 			ZStack {
 				if let avatarUrl = profile.avatarUrl {
-					ImageItemView(imageUrl: avatarUrl)
+					ImageItemView(imageUrl: avatarUrl, width: 200, height: 200)
 						.clipShape(RoundedRectangle(cornerRadius: 12))
 						.blur(radius: 5)
 				}

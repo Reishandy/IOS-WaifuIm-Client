@@ -10,6 +10,7 @@ import SwiftUI
 struct FilterSheetView: View {
 	@Binding var filterState: FilterState
 	let onApplyPress: () -> Void
+	let onCancelPress: () -> Void
 	
     var body: some View {
 		ZStack() {
@@ -17,23 +18,34 @@ struct FilterSheetView: View {
 				FilterView(filterState: $filterState)
 				
 				Color.clear
-					.frame(height: 50)
+					.frame(height: filterState != FilterState.defultFilter ? 130 : 80)
 			}
 			
 			VStack(alignment: .trailing) {
 				Spacer()
 				
-				HStack {
-					if filterState != FilterState.defultFilter {
+				HStack(alignment: .bottom) {
+					VStack(alignment: .leading) {
+						if filterState != FilterState.defultFilter {
+							Button {
+								filterState = FilterState.defultFilter
+							} label: {
+								Text("Reset")
+									.padding(.vertical, 4)
+									.padding(.horizontal, 12)
+							}
+							.buttonStyle(.glass)
+							.transition(.move(edge: .leading).combined(with: .opacity))
+						}
+						
 						Button {
-							filterState = FilterState.defultFilter
+							onCancelPress()
 						} label: {
-							Text("Reset")
+							Text("Cancel")
 								.padding(.vertical, 4)
 								.padding(.horizontal, 12)
 						}
 						.buttonStyle(.glass)
-						.transition(.move(edge: .leading).combined(with: .opacity))
 					}
 					
 					Spacer()
@@ -41,23 +53,22 @@ struct FilterSheetView: View {
 					Button {
 						onApplyPress()
 					} label: {
-						Text("Done")
+						Text("Apply")
 							.padding(.vertical, 4)
 							.padding(.horizontal, 12)
 					}
 					.buttonStyle(.glassProminent)
 				}
-				.padding(.bottom, -20)
 			}
-			.padding(25)
+			.padding(35)
 		}
 		.animation(.spring, value: filterState)
-		.interactiveDismissDisabled()
     }
 }
 
 #Preview {
 	@Previewable @State var isSheetPresented: Bool = true
+	@Previewable @State var manager: AppManager = AppManager()
 	
 	VStack {
 		Button("toggle sheet") {
@@ -67,11 +78,14 @@ struct FilterSheetView: View {
 	}
 	.sheet(isPresented: $isSheetPresented) {
 		FilterSheetView(
-			filterState: .constant(FilterState.defultFilter),
+			filterState: $manager.filterState,
 			onApplyPress: {
+				isSheetPresented = false
+			},
+			onCancelPress: {
 				isSheetPresented = false
 			}
 		)
-		.environment(AppManager())
+		.environment(manager)
 	}
 }

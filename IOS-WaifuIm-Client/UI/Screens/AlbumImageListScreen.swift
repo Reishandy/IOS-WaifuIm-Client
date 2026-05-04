@@ -16,8 +16,9 @@ struct AlbumImageListScreen: View {
 	@State private var currentPage: Int = 1
 	@State private var hasNextPage: Bool = false
 	@State private var scrollPosition: ScrollPosition = ScrollPosition()
+	@State private var isSingleColumn: Bool = false
 	
-    var body: some View {
+	var body: some View {
 		@Bindable var appManager = appManager
 		
 		VStack {
@@ -40,6 +41,7 @@ struct AlbumImageListScreen: View {
 					populate: { isFresh in
 						populate(isFresh: isFresh)
 					},
+					isSingleColumn: isSingleColumn,
 					scrollPosition: $scrollPosition
 				)
 			}
@@ -48,8 +50,8 @@ struct AlbumImageListScreen: View {
 			populate(isFresh: true)
 		}
 		.toolbar {
-			ToolbarItem(placement: .topBarTrailing) {
-				if !imageResponses.isEmpty {
+			if !imageResponses.isEmpty {
+				ToolbarItem(placement: .topBarTrailing) {
 					Button {
 						withAnimation(.easeInOut) {
 							scrollPosition.scrollTo(edge: .top)
@@ -58,9 +60,22 @@ struct AlbumImageListScreen: View {
 						Image(systemName: "arrow.up")
 					}
 				}
+				
+				ToolbarSpacer(placement: .topBarTrailing)
+				
+				ToolbarItem(placement: .topBarTrailing) {
+					Button {
+						withAnimation(.easeInOut) {
+							isSingleColumn.toggle()
+						}
+					} label: {
+						Image(systemName: isSingleColumn ? "rectangle.3.group" : "rectangle.portrait")
+							.contentTransition(.symbolEffect(.replace.magic(fallback: .downUp.byLayer), options: .nonRepeating))
+					}
+				}
 			}
 		}
-    }
+	}
 	
 	private func populate(isFresh: Bool) {
 		Task {
@@ -81,5 +96,5 @@ struct AlbumImageListScreen: View {
 }
 
 #Preview {
-    AlbumImageListScreen(albumId: 1)
+	AlbumImageListScreen(albumId: 1)
 }

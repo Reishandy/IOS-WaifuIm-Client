@@ -15,8 +15,11 @@ struct ImageListView: View {
 	let isRandomOrder: Bool
 	let hasMoreImage: Bool
 	let populate: (Bool) -> Void
+	let isSingleColumn: Bool
 	
 	@Binding var scrollPosition: ScrollPosition
+	
+	@State private var cachedColumnsData: [[ResponseImage]] = []
 	
 	private var bottomText: String {
 		if isRandomOrder {
@@ -28,35 +31,50 @@ struct ImageListView: View {
 		}
 	}
 	
-    var body: some View {
+	private func generateColumnsData(for imageList: [ResponseImage], columnCount: Int) -> [[ResponseImage]] {
+		var columns: [[ResponseImage]] = Array(repeating: [], count: columnCount)
+		var columnHeights: [CGFloat] = Array(repeating: 0, count: columnCount)
+		
+		for image in imageList {
+			let shortestColumnIndex = columnHeights.enumerated().min(by: { $0.element < $1.element })?.offset ?? 0
+			columns[shortestColumnIndex].append(image)
+			
+			columnHeights[shortestColumnIndex] += CGFloat(image.height) / CGFloat(image.width)
+		}
+		
+		return columns
+	}
+	
+	var body: some View {
 		GeometryReader { geometry in
 			let screenWidth = geometry.size.width
+			let dynamicColumnCount = getDynamicColumnCount(screenWidth: screenWidth)
 			
 			ScrollView {
-				LazyVStack {
-					ForEach(imageResponses) { item in
-						let displayHeight = (screenWidth / CGFloat(item.width)) * CGFloat(item.height)
+				HStack(alignment: .top) {
+					ForEach(0..<cachedColumnsData.count, id: \.self) { columnIndex in
+						let imagesInColumn = cachedColumnsData[columnIndex]
 						
-						NavigationLink(
-							value: Screen.imageDetailScreen(imageId: item.id)
-						) {
-							ImageItemView(imageUrl: item.url)
-								.frame(height: displayHeight)
-								.clipShape(RoundedRectangle(cornerRadius: 10))
-								.padding(.bottom, -6)
-								.padding(.horizontal, 2)
+						LazyVStack {
+							ForEach(imagesInColumn) { item in
+								let columnWidth = screenWidth / CGFloat(cachedColumnsData.count)
+								let displayHeight = (columnWidth / CGFloat(item.width)) * CGFloat(item.height)
+								
+								NavigationLink(value: Screen.imageDetailScreen(imageId: item.id)) {
+									ImageItemView(imageUrl: item.url, width: columnWidth, height: displayHeight)
+										.clipShape(RoundedRectangle(cornerRadius: 10))
+										.padding(.bottom, -6)
+										.padding(.horizontal, 2)
+								}
+							}
 						}
 					}
-					
-					if isLoading {
-						ProgressView()
-							.padding(.top, 12)
-					} else {
-						Text(bottomText)
-							.opacity(0.4)
-							.font(.subheadline)
-							.padding(.top, 6)
-					}
+				}
+				
+				if isLoading {
+					ProgressView().padding(.top, 12)
+				} else {
+					Text(bottomText).opacity(0.4).font(.subheadline).padding(.top, 6)
 				}
 			}
 			.scrollPosition($scrollPosition)
@@ -65,7 +83,7 @@ struct ImageListView: View {
 				let containerHeight = geometry.containerSize.height
 				let currentOffset = geometry.contentOffset.y
 				
-				return  currentOffset + containerHeight >= contentHeight
+				return currentOffset + containerHeight >= (contentHeight - 50)
 			} action: { oldValue, newValue in
 				Task { @MainActor in
 					if newValue && !oldValue && !isRandomOrder {
@@ -73,11 +91,33 @@ struct ImageListView: View {
 					}
 				}
 			}
-			.refreshable {
-				populate(true)
+			.task(id: imageResponses.hashValue) {
+				Task { @MainActor in
+					self.cachedColumnsData = generateColumnsData(for: imageResponses, columnCount: getDynamicColumnCount(screenWidth: screenWidth))
+				}
 			}
+			.onChange(of: dynamicColumnCount) {
+				Task { @MainActor in
+					withAnimation {
+						self.cachedColumnsData = generateColumnsData(for: imageResponses, columnCount: dynamicColumnCount)
+					}
+				}
+			}
+			.refreshable { populate(true) }
 		}
-    }
+	}
+	
+	private func getDynamicColumnCount(screenWidth: CGFloat) -> Int {
+		if isSingleColumn || imageResponses.count <= 1 { return 1 }
+		
+		if screenWidth > 1000 {
+			return 4
+		} else if screenWidth > 500 {
+			return 3
+		} else {
+			return 2
+		}
+	}
 }
 
 #Preview {
@@ -87,6 +127,8 @@ struct ImageListView: View {
 		isRandomOrder: false,
 		hasMoreImage: false,
 		populate: {_ in },
+		isSingleColumn: false,
 		scrollPosition: .constant(ScrollPosition())
 	)
+	.environment(AppManager())
 }

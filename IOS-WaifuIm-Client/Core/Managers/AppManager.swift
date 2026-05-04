@@ -102,7 +102,7 @@ class AppManager {
 					orderBy: .addedToAlbum,
 					orientation: .all,
 					page: currentPage,
-					pageSize: 10
+					pageSize: 30
 				)
 			)
 			

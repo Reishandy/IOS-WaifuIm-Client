@@ -125,6 +125,7 @@ struct InfoSheetView: View {
 						description: "No tags are associated with this image",
 						isSmall: true
 					)
+					.frame(maxWidth: .infinity)
 				} else {
 					ScrollView(.horizontal) {
 						HStack {
@@ -151,6 +152,7 @@ struct InfoSheetView: View {
 						description: "No artists are associated with this image",
 						isSmall: true
 					)
+					.frame(maxWidth: .infinity)
 				} else {
 					VStack {
 						ForEach(realArtists) { artist in

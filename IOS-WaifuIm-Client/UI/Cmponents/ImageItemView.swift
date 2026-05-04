@@ -9,6 +9,8 @@ import SwiftUI
 
 struct ImageItemView: View {
 	let imageUrl: String
+	let width: CGFloat
+	let height: CGFloat
 	var onImageLoaded: ((UIImage) -> Void)? = nil
 	
 	@State private var imageLoaderManager = ImageLoaderManager()
@@ -41,6 +43,7 @@ struct ImageItemView: View {
 					.transition(.opacity)
 			}
 		}
+		.frame(width: width, height: height)
 		.animation(.easeIn(duration: 0.3), value: imageLoaderManager.image)
 		.task(id: imageUrl) {
 			populate()
@@ -62,5 +65,5 @@ struct ImageItemView: View {
 }
 
 #Preview() {
-	ImageItemView(imageUrl: "https://github.com/Reishandy/Reishandy/blob/85b5bd0ef00735d277eaf41db3f28a5eb6e2c63a/repo/michiru_profile.webp?raw=true")
+	ImageItemView(imageUrl: "https://github.com/Reishandy/Reishandy/blob/85b5bd0ef00735d277eaf41db3f28a5eb6e2c63a/repo/michiru_profile.webp?raw=true", width: 400, height: 400)
 }

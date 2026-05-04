@@ -16,6 +16,7 @@ struct ImageListScreen: View {
 	@State private var isFetchingCooldown: Bool = false
 	@State private var scrollPosition: ScrollPosition = ScrollPosition()
 	@State private var isAccountShown: Bool = false
+	@State private var isSingleColumn: Bool = false
 	
 	private var isRandomOrder: Bool {
 		appManager.filterState.orderBy == .random
@@ -48,6 +49,7 @@ struct ImageListScreen: View {
 					populate: { isFresh in
 						self.populate(isFresh: isFresh)
 					},
+					isSingleColumn: isSingleColumn,
 					scrollPosition: $scrollPosition
 				)
 			}
@@ -94,7 +96,7 @@ struct ImageListScreen: View {
 					isAccountShown.toggle()
 				} label: {
 					if let avatarUrl = appManager.profile?.avatarUrl {
-						ImageItemView(imageUrl: avatarUrl)
+						ImageItemView(imageUrl: avatarUrl, width: 35, height: 35)
 							.clipShape(Circle())
 							.padding(-8)
 					} else {
@@ -125,8 +127,8 @@ struct ImageListScreen: View {
 					value: Screen.tagScreen
 				) {
 					Image(systemName: "tag")
-						.padding(.trailing, -40)
 				}
+				.padding(.trailing, -20)
 			}
 			
 			ToolbarItem(placement: .bottomBar) {
@@ -134,8 +136,8 @@ struct ImageListScreen: View {
 					value: Screen.artistScreen
 				) {
 					Image(systemName: "person.2")
-						.padding(.trailing, appManager.albumResponses != nil ? -16 : 8)
 				}
+				.padding(.trailing, appManager.albumResponses != nil ? -16 : 8)
 			}
 			
 			if appManager.albumResponses != nil {
@@ -144,8 +146,8 @@ struct ImageListScreen: View {
 						value: Screen.albumScreen
 					) {
 						Image(systemName: "folder")
-							.padding(.trailing, 10)
 					}
+					.padding(.trailing, 10)
 					.transition(.opacity)
 				}
 			}
@@ -154,10 +156,21 @@ struct ImageListScreen: View {
 			
 			ToolbarItem(placement: .bottomBar) {
 				Button {
+					isSingleColumn.toggle()
+				} label: {
+					Image(systemName: isSingleColumn ? "rectangle.3.group" : "rectangle.portrait")
+						.contentTransition(.symbolEffect(.replace.magic(fallback: .downUp.byLayer), options: .nonRepeating))
+				}
+				.padding(.trailing, -20)
+			}
+			
+			ToolbarItem(placement: .bottomBar) {
+				Button {
 					isFilterSheetPresented = true
 				} label: {
 					Image(systemName: "line.3.horizontal.decrease")
 				}
+				.padding(.trailing, 10)
 				.matchedTransitionSource(id: "filterSheetSource", in: imageListScreenNameSpace)
 			}
 		}
@@ -174,6 +187,9 @@ struct ImageListScreen: View {
 					Task {
 						populate(isFresh: true)
 					}
+				},
+				onCancelPress: {
+					isFilterSheetPresented = false
 				}
 			)
 			.navigationTransition(.zoom(sourceID: "filterSheetSource", in: imageListScreenNameSpace))

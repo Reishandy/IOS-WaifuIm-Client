@@ -43,7 +43,7 @@ struct ImageDetailScreen: View {
 			
 			if let imageResponse = imageResponse {
 				VStack {
-					ImageItemView(imageUrl: imageResponse.url) { loadedImage in
+					ImageItemView(imageUrl: imageResponse.url, width: size.width, height: size.height) { loadedImage in
 						self.loadedImage = loadedImage
 					}
 					.scaleEffect(totalZoom + currentZoom)
@@ -124,14 +124,14 @@ struct ImageDetailScreen: View {
 				}
 				.frame(maxWidth: .infinity, maxHeight: .infinity)
 				.background(
-					LinearGradient(
+					RadialGradient(
 						stops: [
-							.init(color: .clear, location: 0),
-							.init(color: Color(uiColor: UIColor(hex: imageResponse.dominantColor)!), location: 0.5),
+							.init(color: Color(uiColor: UIColor(hex: imageResponse.dominantColor)!), location: 0),
 							.init(color: .clear, location: 1.0)
 						],
-						startPoint: .top,
-						endPoint: .bottom
+						center: .center,
+						startRadius: 0,
+						endRadius: max(size.width, size.height)
 					)
 					.ignoresSafeArea()
 				)
@@ -165,9 +165,9 @@ struct ImageDetailScreen: View {
 						isAlbumSheetPresented = true
 					} label: {
 						Image(systemName: "folder.badge.plus")
-							.padding(.leading, 6)
-							.padding(.trailing, -20)
 					}
+					.padding(.leading, 6)
+					.padding(.trailing, -20)
 					.matchedTransitionSource(id: "albumSheetSource", in: imageDetailScreenNameSpace)
 				}
 				
@@ -277,6 +277,7 @@ struct ImageDetailScreen: View {
 #Preview {
 	NavigationStack {
 		ImageDetailScreen(imageId: ResponseImage.mock.id)
-		.environment(AppManager())
+			.environment(AppManager())
+			.environment(RouterManager())
 	}
 }

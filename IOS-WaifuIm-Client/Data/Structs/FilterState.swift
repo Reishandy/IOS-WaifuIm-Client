@@ -34,7 +34,7 @@ struct FilterState: Equatable {
 		orderBy: .random,
 		orientation: .all,
 		page: 1,
-		pageSize: 10,
+		pageSize: 30,
 		width: nil,
 		height: nil,
 		byteSize: nil

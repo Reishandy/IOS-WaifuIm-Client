@@ -7,7 +7,7 @@
 
 import Foundation
 
-nonisolated struct ResponseImage: Decodable, Identifiable, Equatable {
+nonisolated struct ResponseImage: Decodable, Identifiable, Equatable, Hashable {
 	let id: Int
 	let perceptualHash: String
 	let dominantColor: String
