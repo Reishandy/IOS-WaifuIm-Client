@@ -25,21 +25,28 @@ struct TagScreen: View {
 	}
 	
     var body: some View {
-		ScrollView {
-			LazyVStack {
-				ForEach(filteredTags) { tag in
-					TagCardView(responseTag: tag)
-						.onTapGesture {
-							routerManager.reset()
-							
-							Task {
-								await appManager.fetchOnlyTagOrArtist(slug: tag.slug)
+		GeometryReader { geometry in
+			let screenWidth = geometry.size.width
+			
+			ScrollView {
+				LazyVGrid(
+					columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: screenWidth > 1000 ? 3 : screenWidth > 500 ? 2 : 1),
+					spacing: 4
+				) {
+					ForEach(filteredTags) { tag in
+						TagCardView(responseTag: tag)
+							.onTapGesture {
+								routerManager.reset()
+								
+								Task {
+									await appManager.fetchOnlyTagOrArtist(slug: tag.slug)
+								}
 							}
-						}
-						.transition(.scale(0.8).combined(with: .opacity))
+							.transition(.scale(0.8).combined(with: .opacity))
+					}
 				}
+				.padding(10)
 			}
-			.padding(10)
 		}
 		.navigationTitle("All Tags")
 		.toolbarTitleDisplayMode(.inline)
@@ -52,5 +59,6 @@ struct TagScreen: View {
 	NavigationStack {
 		TagScreen()
 			.environment(AppManager())
+			.environment(RouterManager())
 	}
 }

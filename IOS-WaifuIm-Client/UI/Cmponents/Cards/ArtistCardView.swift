@@ -75,9 +75,11 @@ struct ArtistCardView: View {
 					}
 				}
 			}
+			
+			Spacer()
 		}
 		.padding(12)
-		.frame(maxWidth: .infinity, alignment: .leading)
+		.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
 		.background(Color(uiColor: .tertiarySystemFill))
 		.clipShape(RoundedRectangle(cornerRadius: 8))
     }

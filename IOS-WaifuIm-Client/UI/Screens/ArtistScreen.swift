@@ -24,21 +24,28 @@ struct ArtistScreen: View {
 	}
 	
 	var body: some View {
-		ScrollView {
-			LazyVStack {
-				ForEach(filteredArtists) { artist in
-					ArtistCardView(responseArtist: artist)
-						.onTapGesture {
-							routerManager.reset()
-							
-							Task {
-								await appManager.fetchOnlyTagOrArtist(artistId: artist.id)
+		GeometryReader { geometry in
+			let screenWidth = geometry.size.width
+			
+			ScrollView {
+				LazyVGrid(
+					columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: screenWidth > 1000 ? 3 : screenWidth > 500 ? 2 : 1),
+					spacing: 4
+				) {
+					ForEach(filteredArtists) { artist in
+						ArtistCardView(responseArtist: artist)
+							.onTapGesture {
+								routerManager.reset()
+								
+								Task {
+									await appManager.fetchOnlyTagOrArtist(artistId: artist.id)
+								}
 							}
-						}
-						.transition(.scale(0.8).combined(with: .opacity))
+							.transition(.scale(0.8).combined(with: .opacity))
+					}
 				}
+				.padding(10)
 			}
-			.padding(10)
 		}
 		.navigationTitle("All Artists")
 		.toolbarTitleDisplayMode(.inline)
@@ -51,5 +58,6 @@ struct ArtistScreen: View {
 	NavigationStack {
 		ArtistScreen()
 			.environment(AppManager())
+			.environment(RouterManager())
 	}
 }

@@ -28,33 +28,40 @@ struct AlbumScreen: View {
 	var body: some View {
 		@Bindable var appManager = appManager
 		
-		ScrollView {
-			LazyVStack {
-				ForEach(filteredAlbums) { album in
-					NavigationLink(
-						value: Screen.albumImageScreen(albumId: album.id)
-					) {
-						AlbumCardView(
-							responseAlbum: album,
-							onEditTap: { albumId, name, description in
-								formContext = AlbumFormContext(
-									editId: albumId,
-									name: name,
-									description: description
-								)
-							},
-							onDeleteTap: { albumId in
-								Task {
-									await appManager.deleteAlbum(albumId: albumId)
+		GeometryReader { geometry in
+			let screenWidth = geometry.size.width
+			
+			ScrollView {
+				LazyVGrid(
+					columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: screenWidth > 1000 ? 3 : screenWidth > 500 ? 2 : 1),
+					spacing: 4
+				) {
+					ForEach(filteredAlbums) { album in
+						NavigationLink(
+							value: Screen.albumImageScreen(albumId: album.id)
+						) {
+							AlbumCardView(
+								responseAlbum: album,
+								onEditTap: { albumId, name, description in
+									formContext = AlbumFormContext(
+										editId: albumId,
+										name: name,
+										description: description
+									)
+								},
+								onDeleteTap: { albumId in
+									Task {
+										await appManager.deleteAlbum(albumId: albumId)
+									}
 								}
-							}
-						)
-						.transition(.scale(0.8).combined(with: .opacity))
+							)
+							.transition(.scale(0.8).combined(with: .opacity))
+						}
+						.buttonStyle(.plain)
 					}
-					.buttonStyle(.plain)
 				}
+				.padding(10)
 			}
-			.padding(10)
 		}
 		.task {
 			await appManager.fetchAlbums()
