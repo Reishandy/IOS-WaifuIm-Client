@@ -78,7 +78,7 @@ struct ImageListScreen: View {
 					}
 				} else {
 					Button {
-						withAnimation {
+						withAnimation(.easeInOut) {
 							scrollPosition.scrollTo(edge: .top)
 						}
 					} label: {
@@ -162,7 +162,7 @@ struct ImageListScreen: View {
 			}
 		}
 		.onChange(of: appManager.imageResponses.isEmpty) {
-			withAnimation() {
+			withAnimation(.easeInOut) {
 				scrollPosition.scrollTo(edge: .top)
 			}
 		}
@@ -208,7 +208,6 @@ struct ImageListScreen: View {
 		
 		if isFresh {
 			withAnimation() {
-				scrollPosition.scrollTo(edge: .top)
 				appManager.imageResponses = []
 				appManager.filterState.page = 1
 			}

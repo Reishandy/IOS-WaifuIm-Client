@@ -49,12 +49,14 @@ struct AlbumImageListScreen: View {
 		}
 		.toolbar {
 			ToolbarItem(placement: .topBarTrailing) {
-				Button {
-					withAnimation {
-						scrollPosition.scrollTo(edge: .top)
+				if !imageResponses.isEmpty {
+					Button {
+						withAnimation(.easeInOut) {
+							scrollPosition.scrollTo(edge: .top)
+						}
+					} label: {
+						Image(systemName: "arrow.up")
 					}
-				} label: {
-					Image(systemName: "arrow.up")
 				}
 			}
 		}
