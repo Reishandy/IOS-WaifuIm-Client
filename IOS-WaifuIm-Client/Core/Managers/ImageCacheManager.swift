@@ -10,18 +10,13 @@ import UIKit
 class ImageCache {
 	static let shared = ImageCache()
 	
-	private let cache = NSCache<NSString, UIImage>()
+	private let cache = NSCache<NSString, NSData>()
 	
-	private init() {
-		self.cache.countLimit = 100
-		self.cache.totalCostLimit = 1024 * 1024 * 1000 // ~1 GB
+	func set(_ data: Data, forKey key: String) {
+		cache.setObject(data as NSData, forKey: key as NSString)
 	}
 	
-	func set(_ image: UIImage, forKey key: String) {
-		cache.setObject(image, forKey: key as NSString)
-	}
-	
-	func get(forKey key: String) -> UIImage? {
-		return cache.object(forKey: key as NSString)
+	func get(forKey key: String) -> Data? {
+		return cache.object(forKey: key as NSString) as Data?
 	}
 }

@@ -6,22 +6,33 @@
 //
 
 import SwiftUI
+import SDWebImageSwiftUI
+import UniformTypeIdentifiers
 
 struct ImageItemView: View {
 	let imageUrl: String
 	let width: CGFloat
 	let height: CGFloat
-	var onImageLoaded: ((UIImage) -> Void)? = nil
+	var onImageDataLoaded: ((Data) -> Void)? = nil
 	
 	@State private var imageLoaderManager = ImageLoaderManager()
 	
 	var body: some View {
 		ZStack {
-			if let image = imageLoaderManager.image {
-				Image(uiImage: image)
-					.resizable()
-					.aspectRatio(contentMode: .fit)
-					.transition(.opacity.combined(with: .scale(scale: 0.95)))
+			if let imageData = imageLoaderManager.imageData {
+				if imageData.imageUTType == .gif {
+					AnimatedImage(data: imageData)
+						.resizable()
+						.aspectRatio(contentMode: .fit)
+						.transition(.opacity.combined(with: .scale(scale: 0.95)))
+				} else {
+					if let image = UIImage(data: imageData) {
+						Image(uiImage: image)
+							.resizable()
+							.aspectRatio(contentMode: .fit)
+							.transition(.opacity.combined(with: .scale(scale: 0.95)))
+					}
+				}
 			} else {
 				Color.gray.opacity(0.6)
 					.overlay {
@@ -44,7 +55,7 @@ struct ImageItemView: View {
 			}
 		}
 		.frame(width: width, height: height)
-		.animation(.easeIn(duration: 0.3), value: imageLoaderManager.image)
+		.animation(.easeIn(duration: 0.3), value: imageLoaderManager.imageData)
 		.task(id: imageUrl) {
 			populate()
 		}
@@ -53,14 +64,15 @@ struct ImageItemView: View {
 				populate()
 			}
 		}
+		.onChange(of: imageLoaderManager.imageData) { oldValue, newValue in
+			if let newImageData = newValue {
+				onImageDataLoaded?(newImageData)
+			}
+		}
 	}
 	
 	private func populate() {
 		imageLoaderManager.load(from: imageUrl)
-		
-		if let image = imageLoaderManager.image {
-			onImageLoaded?(image)
-		}
 	}
 }
 

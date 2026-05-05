@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct ImageDetailScreen: View {
 	@Namespace private var imageDetailScreenNameSpace
@@ -23,7 +24,7 @@ struct ImageDetailScreen: View {
 	@State private var totalZoom: CGFloat = 1.0
 	@State private var currentOffset: CGSize = .zero
 	@State private var totalOffset: CGSize = .zero
-	@State private var loadedImage: UIImage? = nil
+	@State private var loadedImageData: Data? = nil
 	
 	private var favoritesAlbumId: Int? {
 		appManager.albumResponses?.first(where: { $0.isDefault == true})?.id
@@ -43,8 +44,8 @@ struct ImageDetailScreen: View {
 			
 			if let imageResponse = imageResponse {
 				VStack {
-					ImageItemView(imageUrl: imageResponse.url, width: size.width, height: size.height) { loadedImage in
-						self.loadedImage = loadedImage
+					ImageItemView(imageUrl: imageResponse.url, width: size.width, height: size.height){ loadedImageData in
+						self.loadedImageData = loadedImageData
 					}
 					.scaleEffect(totalZoom + currentZoom)
 					.offset(x: totalOffset.width + currentOffset.width,
@@ -95,7 +96,7 @@ struct ImageDetailScreen: View {
 								totalOffset.width += currentOffset.width
 								currentOffset = .zero
 								
-								let actualImageSize = loadedImage?.size ?? CGSize(width: size.width, height: size.height)
+								let actualImageSize = UIImage(data: loadedImageData!)?.size ?? CGSize(width: size.width, height: size.height)
 								let currentScale = totalZoom + currentZoom
 								var renderedWidth = size.width
 								var renderedHeight = size.height
@@ -151,11 +152,9 @@ struct ImageDetailScreen: View {
 			}
 			
 			ToolbarItem(placement: .topBarTrailing) {
-				if let uiImage = loadedImage {
-					ShareLink(
-						item: Image(uiImage: uiImage),
-						preview: SharePreview("Share Image #\(String(imageResponse?.id ?? 0))", image: Image(uiImage: uiImage))
-					)
+				if let loadedImageData = loadedImageData, let uiImage = UIImage(data: loadedImageData) {
+					let titleId = String(imageResponse?.id ?? 0)
+					dynamicShareLink(data: loadedImageData, uiImage: uiImage, titleId: titleId)
 				}
 			}
 			
@@ -270,6 +269,24 @@ struct ImageDetailScreen: View {
 			)
 			
 			await populate()
+		}
+	}
+	
+	@ViewBuilder
+	private func dynamicShareLink(data: Data, uiImage: UIImage, titleId: String) -> some View {
+		let preview = SharePreview("Share Image #\(titleId)", image: Image(uiImage: uiImage))
+		let type = data.imageUTType
+		
+		if type == .gif {
+			ShareLink(item: GifShareItem(data: data), preview: preview)
+		} else if type == .png {
+			ShareLink(item: PngShareItem(data: data), preview: preview)
+		} else if type == .jpeg {
+			ShareLink(item: JpegShareItem(data: data), preview: preview)
+		} else if type == .webP {
+			ShareLink(item: WebPShareItem(data: data), preview: preview)
+		} else {
+			ShareLink(item: Image(uiImage: uiImage), preview: preview)
 		}
 	}
 }

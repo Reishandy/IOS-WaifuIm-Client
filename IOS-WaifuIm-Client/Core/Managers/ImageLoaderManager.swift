@@ -9,7 +9,7 @@ import SwiftUI
 
 @Observable
 class ImageLoaderManager {
-	var image: UIImage? = nil
+	var imageData: Data? = nil
 	var isLoading: Bool = false
 	var isError: Bool = false
 	
@@ -17,7 +17,7 @@ class ImageLoaderManager {
 	
 	func load(from urlString: String) {
 		if let cachedImage = ImageCache.shared.get(forKey: urlString) {
-			self.image = cachedImage
+			self.imageData = cachedImage
 			return
 		}
 		
@@ -31,14 +31,12 @@ class ImageLoaderManager {
 				
 				guard !Task.isCancelled else { return }
 				
-				if let downloadedImage = UIImage(data: data) {
-					ImageCache.shared.set(downloadedImage, forKey: urlString)
-					
-					await MainActor.run {
-						self.image = downloadedImage
-						self.isError = false
-						self.isLoading = false
-					}
+				ImageCache.shared.set(data, forKey: urlString)
+				
+				await MainActor.run {
+					self.imageData = data
+					self.isError = false
+					self.isLoading = false
 				}
 			} catch {
 				await MainActor.run {
