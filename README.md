@@ -22,6 +22,7 @@ The Waifu.im Client serves as a streamlined interface for the waifu.im platform,
 * **Framework**: SwiftUI (Declarative UI)
 * **Language**: Swift 6
 * **Persistence**: [KeychainAccess](https://github.com/kishikawakatsumi/keychainaccess)
+* **GIF Display**: [SDWebImageSwiftUI](https://github.com/SDWebImage/SDWebImageSwiftUI)
 * **Networking**: Native URLSession with Async
 
 ## Key Features
