@@ -31,9 +31,15 @@ struct EmptyStateView: View {
 					.multilineTextAlignment(.center)
 			}
 			
-			if action != nil {
-				Button(actionButtonText ?? "Action", action: action!)
-					.buttonStyle(.glass)
+			if let action = action {
+				Button {
+					action()
+				} label: {
+					Text(actionButtonText ?? "Action")
+						.padding(.horizontal, 10)
+						.padding(.vertical, 4)
+				}
+				.buttonStyle(.glass)
 			}
 		}
 		.padding()

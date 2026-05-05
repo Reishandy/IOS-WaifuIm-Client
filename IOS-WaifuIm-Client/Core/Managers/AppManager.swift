@@ -23,6 +23,8 @@ class AppManager {
 	var error: APIError? = nil
 	var showError: Bool = false
 	var hasMoreImage: Bool = false
+	var imageCount: Int = 0
+	var hasNsfwResult: Bool = false
 	
 	private let keychain: Keychain = Keychain(service: "id.reishandy.waifuimios")
 	private let apiKeyAccessor: String = "api_key"
@@ -54,14 +56,39 @@ class AppManager {
 	
 	func fetchImages() async {
 		self.isFetchingImages = true
+		self.hasNsfwResult = false
 		
 		await self.doApiRequest {
 			let response: ResponseFetch<ResponseImage> = try await self.apiService.callAPI(.images, apiKey: self.keychain[self.apiKeyAccessor], filter: self.filterState)
 			
 			self.hasMoreImage = response.hasNextPage
+			self.imageCount = response.totalCount
 			
 			for item in response.items {
-				imageResponses.append(item)
+				self.imageResponses.append(item)
+			}
+			
+			if self.imageResponses.isEmpty {
+				let nsfwCheckResponse: ResponseFetch<ResponseImage> = try await self.apiService.callAPI(
+					.images,
+					apiKey: self.keychain[self.apiKeyAccessor],
+					filter: FilterState(
+						isNsfw: .all,
+						includedTags: self.filterState.includedTags,
+						excludedTags: self.filterState.excludedTags,
+						includedArtists: self.filterState.includedArtists,
+						excludedArtists:self.filterState.excludedArtists,
+						includedIds: self.filterState.includedIds,
+						excludedIds: self.filterState.excludedIds,
+						isAnimated: self.filterState.isAnimated,
+						orderBy: self.filterState.orderBy,
+						orientation: self.filterState.orientation,
+						page: self.filterState.page,
+						pageSize: 1
+					)
+				)
+					
+				self.hasNsfwResult = !nsfwCheckResponse.items.isEmpty
 			}
 		}
 		
@@ -102,7 +129,7 @@ class AppManager {
 					orderBy: .addedToAlbum,
 					orientation: .all,
 					page: currentPage,
-					pageSize: 30
+					pageSize: FilterState.defultFilter.pageSize
 				)
 			)
 			

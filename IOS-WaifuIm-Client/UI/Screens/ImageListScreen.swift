@@ -22,18 +22,38 @@ struct ImageListScreen: View {
 		appManager.filterState.orderBy == .random
 	}
 	
+	private var subtitleText: String {
+		if isRandomOrder {
+			return "A Collection of waifu images"
+		} else if appManager.hasNsfwResult {
+			return "Hmmm... NSFW..."
+		} else {
+			return "Showing \(appManager.imageCount) images"
+		}
+	}
+	
 	var body: some View {
 		@Bindable var appManager = appManager
 		
 		VStack {
-			if appManager.imageResponses.isEmpty {
+			if appManager.hasNsfwResult {
+				EmptyStateView(
+					iconName: "18.circle",
+					title: "Hmmm",
+					description: "We have the images but it is NSFW...",
+					actionButtonText: "Include NSFW Images"
+				) {
+					appManager.filterState.isNsfw = .all
+					populate(isFresh: true)
+				}
+			} else if appManager.imageResponses.isEmpty {
 				if appManager.isFetchingImages {
 					ProgressView()
 				} else {
 					EmptyStateView(
 						iconName: "photo.badge.magnifyingglass",
 						title: "No Images Here",
-						description: "Either it is empty, or you should check the filter (escpecially with the content rating).",
+						description: "We can't find any images with that filter criteria.",
 						actionButtonText: "Reset Filter"
 					) {
 						appManager.filterState = FilterState.defultFilter
@@ -63,7 +83,7 @@ struct ImageListScreen: View {
 						.bold()
 						.fixedSize()
 					
-					Text("A place for waifu illustrations")
+					Text(subtitleText)
 						.opacity(0.4)
 						.font(.callout)
 						.fixedSize()
@@ -184,9 +204,7 @@ struct ImageListScreen: View {
 				filterState: $appManager.filterState,
 				onApplyPress: {
 					isFilterSheetPresented = false
-					Task {
-						populate(isFresh: true)
-					}
+					populate(isFresh: true)
 				},
 				onCancelPress: {
 					isFilterSheetPresented = false
@@ -201,9 +219,7 @@ struct ImageListScreen: View {
 		) { _ in
 			Button("OK", role: .cancel) { }
 			Button("Retry") {
-				Task {
-					populate(isFresh: true)
-				}
+				populate(isFresh: true)
 			}
 		} message: { error in
 			Text(error.localizedDescription)
