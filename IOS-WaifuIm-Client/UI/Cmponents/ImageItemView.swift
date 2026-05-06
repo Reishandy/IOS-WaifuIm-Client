@@ -16,6 +16,7 @@ struct ImageItemView: View {
 	var onImageDataLoaded: ((Data) -> Void)? = nil
 	
 	@State private var imageLoaderManager = ImageLoaderManager()
+	@State private var cachedUIImage: UIImage? = nil
 	
 	var body: some View {
 		ZStack {
@@ -24,13 +25,11 @@ struct ImageItemView: View {
 					AnimatedImage(data: imageData)
 						.resizable()
 						.aspectRatio(contentMode: .fit)
-						.transition(.opacity.combined(with: .scale(scale: 0.95)))
 				} else {
-					if let image = UIImage(data: imageData) {
+					if let image = cachedUIImage {
 						Image(uiImage: image)
 							.resizable()
 							.aspectRatio(contentMode: .fit)
-							.transition(.opacity.combined(with: .scale(scale: 0.95)))
 					}
 				}
 			} else {
@@ -51,7 +50,6 @@ struct ImageItemView: View {
 						}
 					}
 					.aspectRatio(contentMode: .fill)
-					.transition(.opacity)
 			}
 		}
 		.frame(width: width, height: height)
@@ -66,6 +64,10 @@ struct ImageItemView: View {
 		}
 		.onChange(of: imageLoaderManager.imageData) { oldValue, newValue in
 			if let newImageData = newValue {
+				if newImageData.imageUTType != .gif {
+					cachedUIImage = UIImage(data: newImageData)
+				}
+				
 				onImageDataLoaded?(newImageData)
 			}
 		}

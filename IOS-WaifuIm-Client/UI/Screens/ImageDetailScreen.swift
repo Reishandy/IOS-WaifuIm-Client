@@ -20,10 +20,10 @@ struct ImageDetailScreen: View {
 	@State private var shouldHideToolbars: Bool = false
 	@State private var isInfoSheetPresented: Bool = false
 	@State private var isAlbumSheetPresented: Bool = false
-	@State private var currentZoom: CGFloat = 0.0
-	@State private var totalZoom: CGFloat = 1.0
-	@State private var currentOffset: CGSize = .zero
-	@State private var totalOffset: CGSize = .zero
+	@State private var scale: CGFloat = 1.0
+	@State private var lastScale: CGFloat = 1.0
+	@State private var offset: CGSize = .zero
+	@State private var lastOffset: CGSize = .zero
 	@State private var loadedImageData: Data? = nil
 	
 	private var favoritesAlbumId: Int? {
@@ -47,79 +47,63 @@ struct ImageDetailScreen: View {
 					ImageItemView(imageUrl: imageResponse.url, width: size.width, height: size.height){ loadedImageData in
 						self.loadedImageData = loadedImageData
 					}
-					.scaleEffect(totalZoom + currentZoom)
-					.offset(x: totalOffset.width + currentOffset.width,
-							y: totalOffset.height + currentOffset.height)
+					.scaleEffect(scale)
+					.offset(offset)
+					.onTapGesture(count: 2) {
+						withAnimation(.spring()) {
+							if scale > 1.0 {
+								scale = 1.0
+								offset = .zero
+								lastScale = 1.0
+								lastOffset = .zero
+							} else {
+								scale = 3.0
+								lastScale = 3.0
+							}
+						}
+					}
 					.onTapGesture {
 						withAnimation {
 							shouldHideToolbars.toggle()
 						}
 					}
-					.onTapGesture(count: 2) {
-						withAnimation(.spring()) {
-							if totalZoom > 1.0 {
-								totalZoom = 1.0
-								totalOffset = .zero
-								currentOffset = .zero
-							} else {
-								totalZoom = 3.0
-							}
-						}
-					}
 					.gesture(
 						MagnifyGesture()
 							.onChanged { value in
-								currentZoom = value.magnification - 1
+								scale = lastScale * value.magnification
+								
+								offset = CGSize(
+									width: lastOffset.width * value.magnification,
+									height: lastOffset.height * value.magnification
+								)
 							}
 							.onEnded { value in
-								if totalZoom + currentZoom < 1.0 {
-									withAnimation(.spring()) {
-										totalZoom = 1.0
-										currentOffset = .zero
-										totalOffset = .zero
+								if scale < 1.0 {
+									withAnimation {
+										scale = 1.0
+										offset = .zero
 									}
+									lastScale = 1.0
+									lastOffset = .zero
 								} else {
-									totalZoom += currentZoom
+									lastScale = scale
+									enforceBoundaries(size: size)
 								}
-								currentZoom = 0
 							}
 					)
 					.simultaneousGesture(
 						DragGesture()
 							.onChanged { value in
-								if (totalZoom + currentZoom) > 1.0 {
-									currentOffset = value.translation
+								if scale > 1.0 {
+									offset = CGSize(
+										width: lastOffset.width + value.translation.width,
+										height: lastOffset.height + value.translation.height
+									)
 								}
 							}
 							.onEnded { value in
-								totalOffset.height += currentOffset.height
-								totalOffset.width += currentOffset.width
-								currentOffset = .zero
-								
-								let actualImageSize = UIImage(data: loadedImageData!)?.size ?? CGSize(width: size.width, height: size.height)
-								let currentScale = totalZoom + currentZoom
-								var renderedWidth = size.width
-								var renderedHeight = size.height
-								
-								if actualImageSize.width > 0 && actualImageSize.height > 0 {
-									let widthRatio = size.width / actualImageSize.width
-									let heightRatio = size.height / actualImageSize.height
-									let fitScale = min(widthRatio, heightRatio)
-									
-									renderedWidth = actualImageSize.width * fitScale
-									renderedHeight = actualImageSize.height * fitScale
-								}
-								
-								let scaledWidth = renderedWidth * currentScale
-								let scaledHeight = renderedHeight * currentScale
-								
-								let maxX = max(0, (scaledWidth - size.width) / 2)
-								let maxY = max(0, (scaledHeight - size.height) / 2)
-								
-								withAnimation(.spring()) {
-									totalOffset.width = min(max(totalOffset.width, -maxX), maxX)
-									totalOffset.height = min(max(totalOffset.height, -maxY), maxY)
-								}
+								lastOffset = offset
+								enforceBoundaries(size: size)
 							}
 					)
 				}
@@ -155,6 +139,8 @@ struct ImageDetailScreen: View {
 				if let loadedImageData = loadedImageData, let uiImage = UIImage(data: loadedImageData) {
 					let titleId = String(imageResponse?.id ?? 0)
 					dynamicShareLink(data: loadedImageData, uiImage: uiImage, titleId: titleId)
+				} else {
+					ProgressView()
 				}
 			}
 			
@@ -174,7 +160,7 @@ struct ImageDetailScreen: View {
 					let imageIsFavorited = imageInAlbumsIds.contains(favoritesAlbumId)
 					
 					Button {
-						favorite(albumId: favoritesAlbumId)
+						addToAlbum(albumId: favoritesAlbumId)
 					} label: {
 						Image(systemName: imageIsFavorited ? "heart.fill" : "heart")
 							.foregroundStyle(imageIsFavorited ? .red : .primary)
@@ -219,23 +205,29 @@ struct ImageDetailScreen: View {
 				InfoSheetView(
 					imageResponse: imageResponse,
 					onTagTap: { slug in
-						isInfoSheetPresented = false
-						routerManager.reset()
-						
 						Task {
+							isInfoSheetPresented = false
+							
+							try await Task.sleep(until: .now + .seconds(0.03), clock: .continuous)
+							
+							routerManager.reset()
+							
 							await appManager.fetchOnlyTagOrArtist(slug: slug)
 						}
 					},
 					onArtistTap: { artistId in
-						isInfoSheetPresented = false
-						routerManager.reset()
-						
 						Task {
+							isInfoSheetPresented = false
+							
+							try await Task.sleep(until: .now + .seconds(0.03), clock: .continuous)
+							
+							routerManager.reset()
+							
 							await appManager.fetchOnlyTagOrArtist(artistId: artistId)
 						}
 					},
 					onFavoriteTap: {
-						favorite(albumId: favoritesAlbumId ?? -1)
+						addToAlbum(albumId: favoritesAlbumId ?? -1)
 					},
 					isFavorited: imageInAlbumsIds.contains(favoritesAlbumId ?? -1)
 				)
@@ -247,28 +239,65 @@ struct ImageDetailScreen: View {
 			AlbumSheetView(
 				imageInAlbumsIds: imageInAlbumsIds,
 				onAlbumTap: { albumId in
-					favorite(albumId: albumId)
+					addToAlbum(albumId: albumId)
 				}
 			)
 			.presentationDetents([.medium])
 			.navigationTransition(.zoom(sourceID: "albumSheetSource", in: imageDetailScreenNameSpace))
 		}
-		.animation(.spring, value: imageInAlbumsIds)
 	}
 	
 	private func populate() async {
 		self.imageResponse = await appManager.fetchImage(imageId: imageId)
 	}
 	
-	private func favorite(albumId: Int) {
+	private func addToAlbum(albumId: Int) {
 		Task {
+			let isDelete = imageInAlbumsIds.contains(albumId)
+			
+			if isDelete {
+				imageResponse?.albums.removeAll(where: { $0.id == albumId })
+			} else {
+				imageResponse?.albums.append(contentsOf: appManager.albumResponses!.filter { $0.id == albumId })
+			}
+			
 			await appManager.imageToAlbum(
 				albumId: albumId,
 				imageId: imageId,
-				isDelete: imageInAlbumsIds.contains(albumId)
+				isDelete: isDelete
 			)
 			
 			await populate()
+		}
+	}
+	
+	private func enforceBoundaries(size: CGSize) {
+		guard let loadedImageData = loadedImageData,
+			  let uiImage = UIImage(data: loadedImageData) else { return }
+		
+		let actualImageSize = uiImage.size
+		var renderedWidth = size.width
+		var renderedHeight = size.height
+		
+		if actualImageSize.width > 0 && actualImageSize.height > 0 {
+			let widthRatio = size.width / actualImageSize.width
+			let heightRatio = size.height / actualImageSize.height
+			let fitScale = min(widthRatio, heightRatio)
+			
+			renderedWidth = actualImageSize.width * fitScale
+			renderedHeight = actualImageSize.height * fitScale
+		}
+		
+		let scaledWidth = renderedWidth * scale
+		let scaledHeight = renderedHeight * scale
+		
+		let maxX = max(0, (scaledWidth - size.width) / 2)
+		let maxY = max(0, (scaledHeight - size.height) / 2)
+		
+		withAnimation(.spring()) {
+			offset.width = min(max(offset.width, -maxX), maxX)
+			offset.height = min(max(offset.height, -maxY), maxY)
+			lastOffset = offset
 		}
 	}
 	

@@ -75,21 +75,9 @@ struct ImageListScreen: View {
 			}
 		}
 		.frame(maxWidth: .infinity, maxHeight: .infinity)
+		.navigationTitle("Waifu.im")
+		.navigationSubtitle(subtitleText)
 		.toolbar {
-			ToolbarItem(placement: .topBarLeading) {
-				VStack(alignment: .leading, spacing: -4) {
-					Text("Waifu.im")
-						.font(.largeTitle)
-						.bold()
-						.fixedSize()
-					
-					Text(subtitleText)
-						.opacity(0.4)
-						.font(.callout)
-						.fixedSize()
-				}
-			}
-			.sharedBackgroundVisibility(.hidden)
 			
 			ToolbarItem(placement: .topBarTrailing) {
 				if isRandomOrder {

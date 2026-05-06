@@ -26,7 +26,7 @@ nonisolated struct ResponseImage: Decodable, Identifiable, Equatable, Hashable {
 	let favorites: Int
 	let likedAt: String?
 	let addedToAlbumAt: String?
-	let albums: [ResponseAlbum]
+	var albums: [ResponseAlbum]
 	
 	static let mock: ResponseImage = ResponseImage(
 		id: 3386,
