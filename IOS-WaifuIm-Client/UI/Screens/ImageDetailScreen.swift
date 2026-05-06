@@ -49,63 +49,6 @@ struct ImageDetailScreen: View {
 					}
 					.scaleEffect(scale)
 					.offset(offset)
-					.onTapGesture(count: 2) {
-						withAnimation(.spring()) {
-							if scale > 1.0 {
-								scale = 1.0
-								offset = .zero
-								lastScale = 1.0
-								lastOffset = .zero
-							} else {
-								scale = 3.0
-								lastScale = 3.0
-							}
-						}
-					}
-					.onTapGesture {
-						withAnimation {
-							shouldHideToolbars.toggle()
-						}
-					}
-					.gesture(
-						MagnifyGesture()
-							.onChanged { value in
-								scale = lastScale * value.magnification
-								
-								offset = CGSize(
-									width: lastOffset.width * value.magnification,
-									height: lastOffset.height * value.magnification
-								)
-							}
-							.onEnded { value in
-								if scale < 1.0 {
-									withAnimation {
-										scale = 1.0
-										offset = .zero
-									}
-									lastScale = 1.0
-									lastOffset = .zero
-								} else {
-									lastScale = scale
-									enforceBoundaries(size: size)
-								}
-							}
-					)
-					.simultaneousGesture(
-						DragGesture()
-							.onChanged { value in
-								if scale > 1.0 {
-									offset = CGSize(
-										width: lastOffset.width + value.translation.width,
-										height: lastOffset.height + value.translation.height
-									)
-								}
-							}
-							.onEnded { value in
-								lastOffset = offset
-								enforceBoundaries(size: size)
-							}
-					)
 				}
 				.frame(maxWidth: .infinity, maxHeight: .infinity)
 				.background(
@@ -119,6 +62,63 @@ struct ImageDetailScreen: View {
 						endRadius: max(size.width, size.height)
 					)
 					.ignoresSafeArea()
+				)
+				.onTapGesture(count: 2) {
+					withAnimation(.spring()) {
+						if scale > 1.0 {
+							scale = 1.0
+							offset = .zero
+							lastScale = 1.0
+							lastOffset = .zero
+						} else {
+							scale = 3.0
+							lastScale = 3.0
+						}
+					}
+				}
+				.onTapGesture {
+					withAnimation {
+						shouldHideToolbars.toggle()
+					}
+				}
+				.gesture(
+					MagnifyGesture()
+						.onChanged { value in
+							scale = lastScale * value.magnification
+							
+							offset = CGSize(
+								width: lastOffset.width * value.magnification,
+								height: lastOffset.height * value.magnification
+							)
+						}
+						.onEnded { value in
+							if scale < 1.0 {
+								withAnimation {
+									scale = 1.0
+									offset = .zero
+								}
+								lastScale = 1.0
+								lastOffset = .zero
+							} else {
+								lastScale = scale
+								enforceBoundaries(size: size)
+							}
+						}
+				)
+				.simultaneousGesture(
+					DragGesture()
+						.onChanged { value in
+							if scale > 1.0 {
+								offset = CGSize(
+									width: lastOffset.width + value.translation.width,
+									height: lastOffset.height + value.translation.height
+								)
+							}
+						}
+						.onEnded { value in
+							lastOffset = offset
+							enforceBoundaries(size: size)
+						}
 				)
 			} else {
 				ProgressView()

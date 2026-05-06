@@ -28,7 +28,7 @@ struct ImageListScreen: View {
 		} else if appManager.hasNsfwResult {
 			return "Hmmm... NSFW..."
 		} else {
-			return "Showing \(appManager.imageCount) images"
+			return "Showing you \(appManager.imageCount) filtered images"
 		}
 	}
 	
