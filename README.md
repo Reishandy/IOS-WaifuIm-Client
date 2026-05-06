@@ -12,14 +12,14 @@ The Waifu.im Client serves as a streamlined interface for the waifu.im platform,
 
 <p align="center">
   <img src="home.png" width="22%" alt="Gallery View">
-  <img src="info.png" width="22%" alt="Technical Metadata">
   <img src="detail.png" width="22%" alt="Image Detail">
+  <img src="info.png" width="22%" alt="Technical Metadata">
   <img src="album.png" width="22%" alt="Album Management">
 </p>
 
 ## Tech Stack
 
-* **Framework**: SwiftUI (Declarative UI)
+* **Framework**: SwiftUI
 * **Language**: Swift 6
 * **Persistence**: [KeychainAccess](https://github.com/kishikawakatsumi/keychainaccess)
 * **GIF Display**: [SDWebImageSwiftUI](https://github.com/SDWebImage/SDWebImageSwiftUI)
