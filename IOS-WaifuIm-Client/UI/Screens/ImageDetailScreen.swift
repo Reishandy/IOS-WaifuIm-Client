@@ -252,6 +252,8 @@ struct ImageDetailScreen: View {
 	}
 	
 	private func addToAlbum(albumId: Int) {
+		guard favoritesAlbumId != nil else { return }
+		
 		Task {
 			let isDelete = imageInAlbumsIds.contains(albumId)
 			
