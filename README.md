@@ -42,8 +42,6 @@ This project is licensed under the GNU Affero General Public License v3.0 (AGPL-
 ---
 
 Created by **Muhammad Akbar Reishandy**
-*Final-year Computer Science Student at UNIWARA & Apple Developer Academy BINUS Bali Cohort 2026*
-*Software Engineer Intern at PT Telkom Indonesia*
 
 <kbd>[Email](mailto:akbar@reishandy.id)</kbd>
 <kbd>[Website](https://reishandy.id)</kbd>
